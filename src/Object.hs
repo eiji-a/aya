@@ -50,10 +50,3 @@ intersect (Primitive s m) r = map gen_is (distance s r)
 
 
 
-
-
-
-
-
-
-
