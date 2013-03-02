@@ -6,6 +6,8 @@ module Physics where
 
 import Algebra
 
+-------
+
 -- RGB
 ------
 
@@ -17,6 +19,9 @@ rgbMax = 256
 -----------------
 
 data Intensity = Intensity Double Double Double deriving Show
+
+init_intensity :: Double -> Double -> Double -> Double -> Intensity
+init_intensity r g b i = Intensity (r * i) (g * i) (b * i)
 
 toRgb :: Intensity -> Double -> Rgb
 toRgb (Intensity r g b) l = Rgb ir ig ib

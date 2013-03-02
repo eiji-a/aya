@@ -4,21 +4,29 @@
 
 module Algebra where
 
+-----------
+-- CLASS --
+-----------
+
 class (Show a, Eq a) => Matrix a where
   add :: a -> a -> a
   sub :: a -> a -> a
   scale :: a -> Double -> a
-  divide :: a -> Double -> a
+  divide :: a -> Double -> Maybe a
   negate :: a -> a
   norm :: a -> Double
 
 class (Matrix a) => Vector a where
   dot :: a -> a -> Double
-  normal :: a -> a
+  normal :: a -> Maybe a
   square :: a -> Double
 
+----------
+-- DATA --
+----------
+
 -- 2 dimensional vector
--- --------------------
+----------------------------------------------------------
 
 data Vector2 = Vector2 Double Double
 
@@ -35,7 +43,9 @@ instance Matrix Vector2 where
 
   scale (Vector2 ax ay) s = Vector2 (ax * s) (ay * s)
 
-  divide (Vector2 ax ay) s = Vector2 (ax / s) (ay / s)
+  divide (Vector2 ax ay) s =
+    | s == 0    = Nothing
+    | otherwise = Just (Vector2 (ax / s) (ay / s))
 
   negate (Vector2 ax ay) = Vector2 (-ax) (-ay)
 
@@ -44,7 +54,9 @@ instance Matrix Vector2 where
 instance Vector Vector2 where
   dot (Vector2 ax ay) (Vector2 bx by) = ax * bx + ay * by
 
-  normal (Vector2 ax ay) = Vector2 (ax / mag) (ay / mag)
+  normal (Vector2 ax ay) =
+    | mag == 0  = Nothing
+    | otherwise = Just (Vector2 (ax / mag) (ay / mag))
     where mag = norm (Vector2 ax ay)
 
   square a = a `dot` a
@@ -54,7 +66,7 @@ ex2 = Vector2 1 0
 ey2 = Vector2 0 1
 
 -- 3 dimensional vector
------------------------
+-----------------------------------------------------------
 
 data Vector3 = Vector3 Double Double Double
 
@@ -79,7 +91,9 @@ instance Matrix Vector3 where
 
   scale (Vector3 ax ay az) s = Vector3 (ax * s) (ay * s) (az * s)
 
-  divide (Vector3 ax ay az) s = Vector3 (ax / s) (ay / s) (az / s)
+  divide (Vector3 ax ay az) s =
+    | s == 0    = Nothing
+    | otherwise = Just (Vector3 (ax / s) (ay / s) (az / s))
 
   negate (Vector3 ax ay az) = Vector3 (-ax) (-ay) (-az)
 
@@ -88,7 +102,9 @@ instance Matrix Vector3 where
 instance Vector Vector3 where
   dot (Vector3 ax ay az) (Vector3 bx by bz) = ax * bx + ay * by + az * bz
 
-  normal (Vector3 ax ay az) = Vector3 (ax / mag) (ay / mag) (az / mag)
+  normal (Vector3 ax ay az) =
+    | mag == 0  = Nothing
+    | otherwise = Just (Vector3 (ax / mag) (ay / mag) (az / mag))
     where mag = norm (Vector3 ax ay az)
 
   square a = a `dot` a

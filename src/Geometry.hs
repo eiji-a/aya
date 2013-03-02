@@ -7,9 +7,15 @@ module Geometry where
 import Algebra
 
 -- ray 
-------
+----------------------------------------------------------
 
 data Ray = Ray Vector3 Vector3 deriving (Show)
+
+init_ray :: Vector3 -> Vector3 -> Maybe Ray
+init_ray p d =
+  | nm == Nothing = Nothing
+  | otherwise     = Ray p nm
+  where nm = normal d
 
 pos :: Ray -> Vector3
 pos (Ray p d) = p
@@ -21,10 +27,21 @@ target :: Ray -> Double -> Vector3
 target (Ray p d) t = p `add` (d `scale` t)
 
 -- shape class
---------------
+-----------------------------------------------------------
 
 data Shape = Plain Vector3 Double |
              Sphere Vector3 Double
+
+init_plain :: Vector3 -> Double -> Maybe Plain
+init_plain n d =
+  | n == o3   = Nothing
+  | otherwise = Just (Plain nm d)
+  where nm = normal n
+
+init_sphere :: Vector3 -> Double -> Maybe Sphere
+init_sphere c r =
+  | r == 0 = Nothing
+  | otherwise = Just (Sphere c r)
 
 instance Show Shape where
   show (Plain n d) = "[" ++ (show n) ++ "," ++ (show d) ++ "]"
@@ -61,14 +78,11 @@ intersect' (Plain n d) ray@(Ray p dr)
 intersect' (Sphere c r) ray@(Ray p d)
   | t1 <= 0.0 = []
 --  | t1 == 0.0 = [(Ray t0 (noral (p1 `sub` c)), True)]
-  | t1 >  0.0 = [(Ray p1 (normal (p1 `sub` c)), True),
-                 (Ray p2 (normal (p2 `sub` c)), False)]
+  | t1 >  0.0 = [(init_ray p1 (p1 `sub` c), True),
+                 (init_ray p2 (p2 `sub` c), False)]
   where o = c `sub` p
         t0 = o `dot` d
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
         p1 = target ray (t0 - t2)
         p2 = target ray (t0 + t2)
-
-
-
