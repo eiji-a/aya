@@ -28,7 +28,9 @@ minInt :: Int -> Int
 minInt = min rgbMax
 
 iadd :: Intensity -> Intensity -> Intensity
-iadd (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar + br) (ag + bg) (ab + bb)
+iadd (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar + br)
+                                                           (ag + bg)
+                                                           (ab + bb)
 
 iscale :: Intensity -> Double -> Intensity
 iscale (Intensity r g b) s = Intensity (r * s) (g * s) (b * s)
@@ -46,8 +48,4 @@ intensity_black = Intensity 0 0 0
 -----------
 
 data Material = Material Double deriving Show
-
-
-
-
 

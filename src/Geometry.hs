@@ -23,9 +23,8 @@ target (Ray p d) t = p `add` (d `scale` t)
 -- shape class
 --------------
 
-data Shape =
-  Plain Vector3 Double |
-  Sphere Vector3 Double
+data Shape = Plain Vector3 Double |
+             Sphere Vector3 Double
 
 instance Show Shape where
   show (Plain n d) = "[" ++ (show n) ++ "," ++ (show d) ++ "]"
@@ -54,21 +53,22 @@ get_normal (Plain n d) p = n
 get_normal (Sphere c r) p = normal (p `sub` c)
 
 intersect' :: Shape -> Ray -> [(Ray, Bool)]
-intersect' (Plain n d) (Ray p dr)
+intersect' (Plain n d) ray@(Ray p dr)
   | c == 0.0 = []
   | otherwise = [(Ray pos n, c < 0.0)]
   where c = n `dot` dr
-        pos = target (Ray p dr) ((d + n `dot` p) / (-c))
-intersect' (Sphere c r) (Ray p d)
+        pos = target ray ((d + n `dot` p) / (-c))
+intersect' (Sphere c r) ray@(Ray p d)
   | t1 <= 0.0 = []
---  | t1 == 0.0 = [t0]
-  | t1 >  0.0 = [(Ray p1 (normal (p1 `sub` c)), True), (Ray p2 (normal (p2 `sub` c)), False)]
+--  | t1 == 0.0 = [(Ray t0 (noral (p1 `sub` c)), True)]
+  | t1 >  0.0 = [(Ray p1 (normal (p1 `sub` c)), True),
+                 (Ray p2 (normal (p2 `sub` c)), False)]
   where o = c `sub` p
         t0 = o `dot` d
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
-        p1 = target (Ray p d) (t0 - t2)
-        p2 = target (Ray p d) (t0 + t2)
+        p1 = target ray (t0 - t2)
+        p2 = target ray (t0 + t2)
 
 
 

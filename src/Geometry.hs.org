@@ -1,0 +1,67 @@
+--
+--
+--
+
+module Geometry where
+
+import Algebra
+
+-- ray 
+------
+
+data Ray = Ray Vector3 Vector3 deriving (Show)
+
+pos :: Ray -> Vector3
+pos (Ray p d) = p
+
+dir :: Ray -> Vector3
+dir (Ray p d) = d
+
+target :: Ray -> Double -> Vector3
+target (Ray p d) t = p `add` (d `scale` t)
+
+-- shape class
+--------------
+
+class (Show a) => Shape a where
+  side :: a -> Vector3 -> Double
+  intersect :: a -> Ray -> [(Ray, Bool)]
+
+-- plain
+--------
+
+data Plain = Plain Vector3 Double
+
+instance Show Plain where
+  show (Plain n d) = "[" ++ (show n) ++ "," ++ (show d) ++ "]"
+
+instance Shape Plain where
+  side (Plain n d) p = n `dot` p + d
+  intersect (Plain n d) (Ray p dr)
+    | c == 0.0 = []
+    | otherwise = [(Ray pos n, c < 0.0)]
+    where c = n `dot` dr
+          pos = target (Ray p dr) ((d + n `dot` p) / (-c))
+
+-- sphere
+---------
+
+data Sphere = Sphere Vector3 Double
+
+instance Show Sphere where
+  show (Sphere c r) = "[" ++ show c ++ "," ++ show r ++ "]"
+
+instance Shape Sphere where
+  side (Sphere c r) p = norm (p `sub` c) - r
+  intersect (Sphere c r) (Ray p d)
+    | t1 <= 0.0 = []
+--  | t1 == 0.0 = [t0]
+    | t1 >  0.0 = [(Ray p1 (normal (p1 `sub` c)), True), (Ray p2 (normal (p2 `sub` c)), False)]
+    where o = c `sub` p
+          t0 = o `dot` d
+          t1 = r * r - (square o - (t0 * t0))
+          t2 = sqrt t1
+          p1 = target (Ray p d) (t0 - t2)
+          p2 = target (Ray p d) (t0 + t2)
+
+
