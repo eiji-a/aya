@@ -13,7 +13,7 @@ class (Show a, Eq a) => Matrix a where
   sub :: a -> a -> a
   scale :: a -> Double -> a
   divide :: a -> Double -> Maybe a
-  negate :: a -> a
+  neg :: a -> a
   norm :: a -> Double
 
 class (Matrix a) => Vector a where
@@ -43,21 +43,21 @@ instance Matrix Vector2 where
 
   scale (Vector2 ax ay) s = Vector2 (ax * s) (ay * s)
 
-  divide (Vector2 ax ay) s =
+  divide (Vector2 ax ay) s
     | s == 0    = Nothing
     | otherwise = Just (Vector2 (ax / s) (ay / s))
 
-  negate (Vector2 ax ay) = Vector2 (-ax) (-ay)
+  neg (Vector2 ax ay) = Vector2 (-ax) (-ay)
 
-  norm (Vector2 ax ay) = sqrt (ax * ax + ay * ay)
+  norm a = sqrt (square a)
 
 instance Vector Vector2 where
   dot (Vector2 ax ay) (Vector2 bx by) = ax * bx + ay * by
 
-  normal (Vector2 ax ay) =
+  normal a
     | mag == 0  = Nothing
-    | otherwise = Just (Vector2 (ax / mag) (ay / mag))
-    where mag = norm (Vector2 ax ay)
+    | otherwise = a `divide` mag
+    where mag = norm a
 
   square a = a `dot` a
 
@@ -91,21 +91,21 @@ instance Matrix Vector3 where
 
   scale (Vector3 ax ay az) s = Vector3 (ax * s) (ay * s) (az * s)
 
-  divide (Vector3 ax ay az) s =
+  divide (Vector3 ax ay az) s
     | s == 0    = Nothing
     | otherwise = Just (Vector3 (ax / s) (ay / s) (az / s))
 
-  negate (Vector3 ax ay az) = Vector3 (-ax) (-ay) (-az)
+  neg (Vector3 ax ay az) = Vector3 (-ax) (-ay) (-az)
 
-  norm (Vector3 ax ay az) = sqrt (ax * ax + ay * ay + az * az)
+  norm a = sqrt (square a)
 
 instance Vector Vector3 where
   dot (Vector3 ax ay az) (Vector3 bx by bz) = ax * bx + ay * by + az * bz
 
-  normal (Vector3 ax ay az) =
+  normal a
     | mag == 0  = Nothing
-    | otherwise = Just (Vector3 (ax / mag) (ay / mag) (az / mag))
-    where mag = norm (Vector3 ax ay az)
+    | otherwise = a `divide` mag
+    where mag = norm a
 
   square a = a `dot` a
 

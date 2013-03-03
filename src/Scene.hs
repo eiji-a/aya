@@ -1,8 +1,15 @@
 --
---
+-- SCENE
 --
 
 module Scene where
+
+-- global parameters
+
+iAmb = Intensity 0 0 0
+iclip = 120
+
+-- lights and primitives
 
 lights = [
   PointLight (Vector3 0 2 0) (Intensity 120 120 120),

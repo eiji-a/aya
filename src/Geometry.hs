@@ -1,30 +1,35 @@
 --
---
+-- GEOMETRY
 --
 
 module Geometry where
 
+import Data.Maybe
 import Algebra
 
 -- ray 
 ----------------------------------------------------------
 
-data Ray = Ray Vector3 Vector3 deriving (Show)
+data Ray = Ray {rpos :: Vector3, rdir :: Vector3} deriving Show
 
-init_ray :: Vector3 -> Vector3 -> Maybe Ray
-init_ray p d =
-  | nm == Nothing = Nothing
-  | otherwise     = Ray p nm
+initRay :: Vector3 -> Vector3 -> Maybe Ray
+initRay p d
+  | nm == Nothing  = Nothing
+  | otherwise      = Just (Ray p (fromJust nm))
   where nm = normal d
-
-pos :: Ray -> Vector3
-pos (Ray p d) = p
-
-dir :: Ray -> Vector3
-dir (Ray p d) = d
 
 target :: Ray -> Double -> Vector3
 target (Ray p d) t = p `add` (d `scale` t)
+
+-- inside/outside
+-----------------------------------------------------------
+
+data Inout = Inside | Outside deriving Eq
+
+instance Show Inout where
+  show a
+    | a == Inside  = "Inside"
+    | a == Outside = "Outside"
 
 -- shape class
 -----------------------------------------------------------
@@ -32,14 +37,14 @@ target (Ray p d) t = p `add` (d `scale` t)
 data Shape = Plain Vector3 Double |
              Sphere Vector3 Double
 
-init_plain :: Vector3 -> Double -> Maybe Plain
-init_plain n d =
+initPlain :: Vector3 -> Double -> Maybe Shape
+initPlain n d
   | n == o3   = Nothing
-  | otherwise = Just (Plain nm d)
+  | otherwise = Just (Plain (fromJust nm) d)
   where nm = normal n
 
-init_sphere :: Vector3 -> Double -> Maybe Sphere
-init_sphere c r =
+initSphere :: Vector3 -> Double -> Maybe Shape
+initSphere c r
   | r == 0 = Nothing
   | otherwise = Just (Sphere c r)
 
@@ -51,38 +56,31 @@ side :: Shape -> Vector3 -> Double
 side (Plain n d) p = n `dot` p + d
 side (Sphere c r) p = norm (p `sub` c) - r
 
-distance :: Shape -> Ray -> [(Double, Bool)]
+distance :: Shape -> Ray -> [(Double, Inout)]
 distance (Plain n d) (Ray p dr)
   | c == 0.0 = []
-  | otherwise = [((d + n `dot` p) / (-c), c < 0.0)]
+  | otherwise = [((d + n `dot` p) / (-c), io)]
   where c = n `dot` dr
+        io = if c < 0.0 then Inside else Outside
 distance (Sphere c r) (Ray p d)
   | t1 <= 0.0 = []
 --  | t1 == 0.0 = [t0]
-  | t1 >  0.0 = [(t0 - t2, True), (t0 + t2, False)]
+  | t1 >  0.0 = [(t0 - t2, Inside), (t0 + t2, Outside)]
   where o = c `sub` p
         t0 = o `dot` d
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
 
-get_normal :: Shape -> Vector3 -> Vector3
-get_normal (Plain n d) p = n
-get_normal (Sphere c r) p = normal (p `sub` c)
+getNormal :: Shape -> Vector3 -> Vector3
+getNormal (Plain n d) p = n
+getNormal (Sphere c r) p = fromJust (normal (p `sub` c))
 
-intersect' :: Shape -> Ray -> [(Ray, Bool)]
-intersect' (Plain n d) ray@(Ray p dr)
-  | c == 0.0 = []
-  | otherwise = [(Ray pos n, c < 0.0)]
-  where c = n `dot` dr
-        pos = target ray ((d + n `dot` p) / (-c))
-intersect' (Sphere c r) ray@(Ray p d)
-  | t1 <= 0.0 = []
---  | t1 == 0.0 = [(Ray t0 (noral (p1 `sub` c)), True)]
-  | t1 >  0.0 = [(init_ray p1 (p1 `sub` c), True),
-                 (init_ray p2 (p2 `sub` c), False)]
-  where o = c `sub` p
-        t0 = o `dot` d
-        t1 = r * r - (square o - (t0 * t0))
-        t2 = sqrt t1
-        p1 = target ray (t0 - t2)
-        p2 = target ray (t0 + t2)
+intersect' :: Shape -> Ray -> [(Ray, Inout)]
+intersect' s@(Plain n _) r = [(Ray (target r t) n, io) | (t, io) <- distance s r]
+intersect' s@(Sphere c _) r = [(newray r t c, io) | (t, io) <- distance s r]
+
+newray :: Ray -> Double -> Vector3 -> Ray
+newray r t c = Ray is n
+  where is = target r t
+        n = fromJust (normal (is `sub` c))
+
