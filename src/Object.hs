@@ -13,18 +13,17 @@ import Physics
 -- light
 --
 
-data Light =
-  PointLight Vector3 Intensity |
-  ParallelLight Vector3 Intensity
-  deriving Show
+data Light = PointLight Vector3 Intensity
+           | ParallelLight Vector3 Intensity
+           deriving Show
 
 -- return: L vector and decay factor
 ldir :: Light -> Vector3 -> (Vector3, Double)
-ldir (ParallelLight d _) _ = (neg d, 1.0)
-ldir (PointLight p _) pos
+ldir (ParallelLight dir _) _ = (neg dir, 1.0)
+ldir (PointLight pos _) pt
   | len == 0  = error "light vector is zero"
   | otherwise = (fromJust (ldir `divide` len), len2)
-  where ldir = p `sub` pos
+  where ldir = pos `sub` pt
         len2 = square ldir
         len = sqrt len2
 
@@ -43,15 +42,15 @@ lint (ParallelLight _ i) = i
 ------------
 
 data Intersection = Intersection {
-  idist :: Double, ishape :: Shape, imate :: Material, inout :: Inout
-  } deriving Show
+                    idist :: Double, ishape :: Shape, imate :: Material, inout :: Inout
+                  } deriving Show
 
 data Primitive = Primitive Shape Material deriving Show
 
 intersect :: Primitive -> Ray -> [Intersection]
-intersect (Primitive s m) r = map genIs (distance s r)
+intersect (Primitive shp mate) ray = map genIs (distance shp ray)
   where genIs :: (Double, Inout) -> Intersection
-        genIs (t, io) = Intersection t s m io
+        genIs (t, io) = Intersection t shp mate io
 
 
 

@@ -38,27 +38,20 @@ instance Eq Vector2 where
 
 instance Matrix Vector2 where
   add (Vector2 ax ay) (Vector2 bx by) = Vector2 (ax + bx) (ay + by)
-
   sub (Vector2 ax ay) (Vector2 bx by) = Vector2 (ax - bx) (ay - by)
-
   scale (Vector2 ax ay) s = Vector2 (ax * s) (ay * s)
-
   divide (Vector2 ax ay) s
     | s == 0    = Nothing
     | otherwise = Just (Vector2 (ax / s) (ay / s))
-
   neg (Vector2 ax ay) = Vector2 (-ax) (-ay)
-
   norm a = sqrt (square a)
 
 instance Vector Vector2 where
   dot (Vector2 ax ay) (Vector2 bx by) = ax * bx + ay * by
-
   normal a
     | mag == 0  = Nothing
     | otherwise = a `divide` mag
     where mag = norm a
-
   square a = a `dot` a
 
 o2  = Vector2 0 0
@@ -71,48 +64,31 @@ ey2 = Vector2 0 1
 data Vector3 = Vector3 Double Double Double
 
 instance Show Vector3 where
-  show (Vector3 ax ay az) = "[" ++ (show ax) ++ ","
-                                ++ (show ay) ++ ","
-                                ++ (show az) ++ "]"
+  show (Vector3 ax ay az) = "[" ++ (show ax) ++ "," ++ (show ay) ++ "," ++ (show az) ++ "]"
 
 instance Eq Vector3 where
-  (Vector3 ax ay az) == (Vector3 bx by bz) = (ax == bx) &&
-                                             (ay == by) &&
-                                             (az == bz)
+  (Vector3 ax ay az) == (Vector3 bx by bz) = (ax == bx) && (ay == by) && (az == bz)
 
 instance Matrix Vector3 where
-  add (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ax + bx)
-                                                      (ay + by)
-                                                      (az + bz)
-
-  sub (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ax - bx)
-                                                      (ay - by)
-                                                      (az - bz)
-
+  add (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ax + bx) (ay + by) (az + bz)
+  sub (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ax - bx) (ay - by) (az - bz)
   scale (Vector3 ax ay az) s = Vector3 (ax * s) (ay * s) (az * s)
-
   divide (Vector3 ax ay az) s
     | s == 0    = Nothing
     | otherwise = Just (Vector3 (ax / s) (ay / s) (az / s))
-
   neg (Vector3 ax ay az) = Vector3 (-ax) (-ay) (-az)
-
   norm a = sqrt (square a)
 
 instance Vector Vector3 where
   dot (Vector3 ax ay az) (Vector3 bx by bz) = ax * bx + ay * by + az * bz
-
   normal a
     | mag == 0  = Nothing
     | otherwise = a `divide` mag
     where mag = norm a
-
   square a = a `dot` a
 
 cross :: Vector3 -> Vector3 -> Vector3
-cross (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ay * bz - by * az)
-                                                      (az * bx - bz * ax)
-                                                      (ax * by - ay * bx)
+cross (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ay * bz - by * az) (az * bx - bz * ax) (ax * by - ay * bx)
 
 o3  = Vector3 0 0 0
 ex3 = Vector3 1 0 0

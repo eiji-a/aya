@@ -6,7 +6,6 @@ module Physics where
 
 import Algebra
 
-
 -- RGB
 ------
 
@@ -21,9 +20,7 @@ rgbMaxDouble = fromIntegral rgbMax
 data Intensity = Intensity Double Double Double deriving Show
 
 instance Eq Intensity where
-  (Intensity ar ag ab) == (Intensity br bg bb) = (ar == br) &&
-                                                 (ag == bg) &&
-                                                 (ab == bb)
+  (Intensity ar ag ab) == (Intensity br bg bb) = (ar == br) && (ag == bg) && (ab == bb)
 
 initIntensity :: Double -> Double -> Double -> Double -> Intensity
 initIntensity r g b i = (Intensity r g b) `iscale` i
@@ -39,14 +36,10 @@ toColor :: Double -> Double -> Int
 toColor c l = min rgbMax (round (rgbMaxDouble * c / l))
 
 iadd :: Intensity -> Intensity -> Intensity
-iadd (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar + br)
-                                                           (ag + bg)
-                                                           (ab + bb)
+iadd (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar + br) (ag + bg) (ab + bb)
 
 imul :: Intensity -> Intensity -> Intensity
-imul (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar * br)
-                                                           (ag * bg)
-                                                           (ab * bb)
+imul (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar * br) (ag * bg) (ab * bb)
 
 iscale :: Intensity -> Double -> Intensity
 iscale (Intensity r g b) s
@@ -69,3 +62,5 @@ data Material = Material {
   mdiff :: Intensity, mspec :: Intensity, mamb :: Intensity,
   mgls :: Int
   } deriving Show
+
+

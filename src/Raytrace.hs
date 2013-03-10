@@ -13,12 +13,13 @@ class Raytrace a where
 
 data Tracer = Tracer [Light] [Primitive]
 
-trace (Tracer l p) r l
-  | l <= 0    = intensityBlack
-  | otherwise = localdiff `iadd` localspec `iadd` globalspec `iadd` globaltran
+instance Raytrace Tracer where
+  trace (Tracer lgts prims) ray depth
+    | depth <= 0 = intensityBlack
+    | otherwise  = localdiff `iadd` localspec `iadd` globalspec `iadd` globaltran
 
 psearch :: [Primitive] -> Ray -> Maybe Intersection
-psearch p r = nearest [y | y <- concat [intersect x | x <- p], idist y > 0.0]
+psearch prims ray = nearest [y | y <- concat [intersect x | x <- prims], idist y > 0.0]
 
 nearest :: [Intersection] -> Maybe Intersection
 nearest [] = Nothing
