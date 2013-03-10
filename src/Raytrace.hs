@@ -13,31 +13,23 @@ class Raytrace a where
 
 data Tracer = Tracer [Light] [Primitive]
 
-<<<<<<< HEAD
 instance Raytrace Tracer where
-  trace (Tracer lgts prims) ray depth
-    | depth <= 0 = intensityBlack
-    | otherwise  = localdiff `iadd` localspec `iadd` globalspec `iadd` globaltran
+  trace tr@(Tracer lgts prims) ray depth
+    | depth <= 0    = intensityBlack
+    | is == Nothing = intensityBlack
+    | otherwise     = brightnessDiff mate tr ray pt n
+                      `iadd` trace tr rs (depth - 1)
+                      `iadd` intensityBlack
+                      -- trace t rt (depth - 1)
+    where is   = psearch p ray                            -- intersection info
+          pt   = target ray (isdist is)                   -- intersection point
+          n    = getNormal' (isshape is) pt (inout is)    -- normal vector on pt
+          mate = ismate is                                -- material
+          rs   = fresnel n ray pt
+          -- rt = Ray pt ey3
 
 psearch :: [Primitive] -> Ray -> Maybe Intersection
-psearch prims ray = nearest [y | y <- concat [intersect x | x <- prims], idist y > 0.0]
-=======
-trace t@(Tracer l p) r lv
-  | lv <= 0       = intensityBlack
-  | is == Nothing = intensityBlack
-  | otherwise     = brightnessDiff m t r pt n `iadd`
-                    trace t rs (lv - 1) `iadd` intensityBlack
-                    -- trace t rt (lv - 1)
-  where is = psearch p r                              -- intersection info
-        pt = target r (isdist is)                     -- intersection point
-        n  = getNormal' (isshape is) pt (inout is)    -- normal vector on pt
-        m  = ismate is                                -- material
-        rs = fresnel n r pt
-        -- rt = Ray pt ey3
-
-psearch :: [Primitive] -> Ray -> Maybe Intersection
-psearch p r = nearest [y | y <- concat [intersect x r | x <- p], isdist y > 0]
->>>>>>> update 2013/3/9 mac
+psearch prims ray = nearest [y | y <- concat [intersect x ray | x <- prims], isdist y > 0]
 
 nearest :: [Intersection] -> Maybe Intersection
 nearest [] = Nothing

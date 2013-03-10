@@ -67,8 +67,6 @@ data Material = Material {
   } deriving Show
 
 
-<<<<<<< HEAD
-=======
 -- p : eye point
 -- d : eye direction
 -- n : normal vector
@@ -77,4 +75,3 @@ fresnelRay :: Ray -> Vector3 -> Vector3 -> Ray
 fresnelRay (Ray p d) n pt = initRay pt (d `sub` (n `scale` (2 * cos)))
   where cos = d `dot` n
 
->>>>>>> update 2013/3/9 mac

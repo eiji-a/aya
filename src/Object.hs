@@ -42,13 +42,8 @@ lint (ParallelLight _ i) = i
 ------------
 
 data Intersection = Intersection {
-<<<<<<< HEAD
-                    idist :: Double, ishape :: Shape, imate :: Material, inout :: Inout
+                    isdist :: Double, isshape :: Shape, ismate :: Material, inout :: Inout
                   } deriving Show
-=======
-  isdist :: Double, isshape :: Shape, ismate :: Material, inout :: Inout
-  } deriving Show
->>>>>>> update 2013/3/9 mac
 
 instance Ord Intersection where
   compare is is'
@@ -56,20 +51,11 @@ instance Ord Intersection where
     | isdist is <= isdist is' = LT
     | otherwise               = GT
 
-<<<<<<< HEAD
-intersect :: Primitive -> Ray -> [Intersection]
-intersect (Primitive shp mate) ray = map genIs (distance shp ray)
-  where genIs :: (Double, Inout) -> Intersection
-        genIs (t, io) = Intersection t shp mate io
-=======
-data Primitive = Primitive Shape Material
-               | CsgModel CsgOpe Primitive Primitive
-               deriving Show
->>>>>>> update 2013/3/9 mac
+data Primitive = Primitive Shape Material deriving Show
 
 intersect :: Primitive -> Ray -> [Intersection]
-intersect (Primitive s m) r = map genIs (distance s r) m
+intersect (Primitive shp mate) ray = map genIs (distance shp ray) mate
 
 genIs :: (Shape, Double, Inout) -> Material -> Intersection
-genIs (s, t, io) m = Intersection t s m io
+genIs (shp, t, io) mate = Intersection t shp mate io
 
