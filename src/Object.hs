@@ -13,9 +13,10 @@ import Physics
 -- light
 --
 
-data Light = PointLight Vector3 Intensity
-           | ParallelLight Vector3 Intensity
-           deriving Show
+data Light =
+    PointLight Vector3 Intensity
+  | ParallelLight Vector3 Intensity
+  deriving Show
 
 -- return: L vector and decay factor
 ldir :: Light -> Vector3 -> (Vector3, Double)
@@ -38,12 +39,12 @@ lint (ParallelLight _ i) = i
 -- intersection
 ---------------
 
--- primitive
-------------
-
 data Intersection = Intersection {
-                    isdist :: Double, isshape :: Shape, ismate :: Material, inout :: Inout
-                  } deriving Show
+    isdist :: Double
+  , isshape :: Shape
+  , ismate :: Material
+  , inout :: Inout
+  } deriving Show
 
 instance Ord Intersection where
   compare is is'
@@ -51,11 +52,15 @@ instance Ord Intersection where
     | isdist is <= isdist is' = LT
     | otherwise               = GT
 
+-- primitive
+------------
+
 data Primitive = Primitive Shape Material deriving Show
 
 intersect :: Primitive -> Ray -> [Intersection]
-intersect (Primitive shp mate) ray = map genIs (distance shp ray) mate
+intersect (Primitive shp mate) ray = mkIs (distance' shp ray) mate
 
-genIs :: (Shape, Double, Inout) -> Material -> Intersection
-genIs (shp, t, io) mate = Intersection t shp mate io
+mkIs :: (Double, Shape, Inout) -> Material -> Intersection
+mkIs (t, shp, io) mate = Intersection t shp mate io
+
 

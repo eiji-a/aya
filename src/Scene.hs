@@ -18,7 +18,7 @@ iclip = 120
 
 traceLevel = 1
 
-material0 = Material intensityBlack intensityBlack IntensityBlack 0
+material0 = Material intensityBlack intensityBlack IntensityBlack 0 1.0
 
 -- lights and primitives
 

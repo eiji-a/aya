@@ -30,6 +30,14 @@ initRay pos dir
 target :: Ray -> Double -> Vector3
 target (Ray pos dir) t = pos `add` (dir `scale` t)
 
+-- dir : eye direction
+-- n   : normal vector
+-- pt  : intersection point
+fresnelRay :: Ray -> Vector3 -> Vector3 -> Ray
+fresnelRay (Ray _ dir) n pt = initRay pt (dir `sub` (n `scale` (2 * cos)))
+  where cos = dir `dot` n
+
+
 -- shape class
 -----------------------------------------------------------
 
@@ -58,19 +66,22 @@ side :: Shape -> Vector3 -> Double
 side (Plain n d) p = n `dot` p + d
 side (Sphere c r) p = norm (p `sub` c) - r
 
-distance :: Shape -> Ray -> [(Double, Inout)]
-distance (Plain n d) (Ray pos dir)
+distance :: Shape -> Ray -> [(Double, Shape, Inout)]
+distance shp@(Plain n d) (Ray pos dir)
   | cos == 0  = []
-  | otherwise = [((d + n `dot` pos) / (-cos), io)]
+  | otherwise = [((d + n `dot` pos) / (-cos), shp, io)]
   where cos = n `dot` dir
         io  = if cos < 0 then Inside else Outside
-distance (Sphere c r) (Ray p d)
+distance shp@(Sphere c r) (Ray p d)
   | t1 <= 0.0 = []
-  | t1 >  0.0 = [(t0 - t2, Inside), (t0 + t2, Outside)]
+  | t1 >  0.0 = [(t0 - t2, shp, Inside), (t0 + t2, shp, Outside)]
   where o = c `sub` pos
         t0 = o `dot` dir
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
+
+distance' Shape -> Ray -> [(Double, Shape, Inout)]
+distance' shp ray = [x | x <- (distance shp ray), fst x > 0]
 
 getNormal :: Shape -> Vector3 -> Vector3
 getNormal (Plain n d) pt = n

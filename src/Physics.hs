@@ -62,16 +62,12 @@ intensityBlack = Intensity 0 0 0
 -----------
 
 data Material = Material {
-  mdiff :: Intensity, mspec :: Intensity, mamb :: Intensity,
-  mgls :: Int
+    mdiff :: Intensity
+  , mspec :: Intensity
+  , mtran :: Intensity
+  , mamb :: Intensity
+  , mgls :: Int
+  , refidx :: Double         -- refractive index
   } deriving Show
 
-
--- p : eye point
--- d : eye direction
--- n : normal vector
--- pt: intersection point
-fresnelRay :: Ray -> Vector3 -> Vector3 -> Ray
-fresnelRay (Ray p d) n pt = initRay pt (d `sub` (n `scale` (2 * cos)))
-  where cos = d `dot` n
 
