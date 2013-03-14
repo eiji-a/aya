@@ -58,9 +58,9 @@ instance Ord Intersection where
 data Primitive = Primitive Shape Material deriving Show
 
 intersect :: Primitive -> Ray -> [Intersection]
-intersect (Primitive shp mate) ray = mkIs (distance' shp ray) mate
+intersect (Primitive shp mate) ray = map mkIs' (distance' shp ray)
+  where mkIs' = mkIs mate
 
-mkIs :: (Double, Shape, Inout) -> Material -> Intersection
-mkIs (t, shp, io) mate = Intersection t shp mate io
-
+mkIs :: Material -> (Double, Shape, Inout) -> Intersection
+mkIs mate (t, shp, io) = Intersection t shp mate io
 

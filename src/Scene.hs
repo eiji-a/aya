@@ -9,16 +9,27 @@ import Geometry
 import Physics
 import Object
 
--- global parameters
+data Scene = Scene {
+    clip    :: Double
+  , depth   :: Int
+  , atomos  :: Material
+  , ambient :: Intensity    
+  , lights  :: [Light]
+  , prims   :: [Primitive]
+  }
 
-iAmb = Intensity 0 0 0
+scene = Scene material0 iAmb lights primitives iclip traceDepth
+
+-- global parameters
 
 iclip :: Double
 iclip = 120
 
-traceLevel = 1
+traceDepth = 1
 
 material0 = Material intensityBlack intensityBlack IntensityBlack 0 1.0
+
+iAmb = Intensity 0 0 0
 
 -- lights and primitives
 

@@ -22,7 +22,7 @@ instance Raytrace Tracer where
                       `iadd` intensityBlack
                       -- trace t rt mate1 (depth - 1)
                       `iadd` iAmb
-    where is    = psearch p ray                            -- intersection info
+    where is    = psearch prims ray                        -- intersection info
           pt    = target ray (isdist is)                   -- intersection point
           n     = getNormal' (isshape is) pt (inout is)    -- normal vector on pt
           mate1 = ismate is                                -- material
@@ -32,6 +32,6 @@ instance Raytrace Tracer where
 psearch :: [Primitive] -> Ray -> Maybe Intersection
 psearch prims ray = 
   | iss == [] = Nothing
-  | otherwise = Just (head $ qsort iss)
+  | otherwise = Just (minimum iss)
   where iss = concat [intersect x ray | x <- prims]
 
