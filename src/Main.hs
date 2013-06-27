@@ -10,6 +10,7 @@ import Physics
 -- import Scene
 import Raytrace
 
+
 xreso = 200
 yreso = 120
 
