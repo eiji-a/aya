@@ -17,6 +17,14 @@ rgbMax = 256 - 1
 rgbMaxDouble :: Double
 rgbMaxDouble = fromIntegral rgbMax
 
+rgbToChar :: Rgb -> [Char]
+rgbToChar (Rgb r g b) = show r ++ " " ++ show g ++ " " ++ show b ++ " "
+
+imageToStr :: [Rgb] -> [Char]
+imageToStr []   = []
+imageToStr (x:xs) = rgbToChar x ++ imageToStr xs
+
+
 -- intensity (lx)
 -----------------
 

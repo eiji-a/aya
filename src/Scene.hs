@@ -10,15 +10,17 @@ import Physics
 import Object
 
 data Scene = Scene {
-    clip    :: Double
-  , depth   :: Int
-  , atomos  :: Material
+    atomos  :: Material
   , ambient :: Intensity    
   , lights  :: [Light]
   , prims   :: [Primitive]
+  , clip    :: Double
+  , depth   :: Int
+  , xreso   :: Int
+  , yreso   :: Int
   }
 
-scene = Scene material0 iAmb lights primitives iclip traceDepth
+scene = Scene material0 iAmb lights primitives iclip traceDepth xReso yReso
 
 -- global parameters
 
@@ -26,6 +28,9 @@ iclip :: Double
 iclip = 120
 
 traceDepth = 1
+
+xReso = 2
+yReso = 2
 
 material0 = Material intensityBlack intensityBlack IntensityBlack 0 1.0
 

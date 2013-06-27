@@ -30,8 +30,11 @@ instance Raytrace Tracer where
           -- rt = Ray pt ey3
 
 psearch :: [Primitive] -> Ray -> Maybe Intersection
-psearch prims ray = 
+psearch prims ray
   | iss == [] = Nothing
   | otherwise = Just (minimum iss)
   where iss = concat [intersect x ray | x <- prims]
+
+tracePoint :: (Int, Int) -> Rgb
+tracePoint (y, x) = Rgb x y 0
 

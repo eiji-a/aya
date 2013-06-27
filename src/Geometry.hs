@@ -33,7 +33,7 @@ target (Ray pos dir) t = pos `add` (dir `scale` t)
 -- dir : eye direction
 -- n   : normal vector
 -- pt  : intersection point
-fresnelRay :: Ray -> Vector3 -> Vector3 -> Ray
+fresnelRay :: Ray -> Vector3 -> Vector3 -> Maybe Ray
 fresnelRay (Ray _ dir) n pt = initRay pt (dir `sub` (n `scale` (2 * cos)))
   where cos = dir `dot` n
 
@@ -72,7 +72,7 @@ distance shp@(Plain n d) (Ray pos dir)
   | otherwise = [((d + n `dot` pos) / (-cos), shp, io)]
   where cos = n `dot` dir
         io  = if cos < 0 then Inside else Outside
-distance shp@(Sphere c r) (Ray p d)
+distance shp@(Sphere c r) (Ray pos dir)
   | t1 <= 0.0 = []
   | t1 >  0.0 = [(t0 - t2, shp, Inside), (t0 + t2, shp, Outside)]
   where o = c `sub` pos
@@ -80,8 +80,11 @@ distance shp@(Sphere c r) (Ray p d)
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
 
-distance' Shape -> Ray -> [(Double, Shape, Inout)]
-distance' shp ray = [x | x <- (distance shp ray), fst x > 0]
+dist :: (Double, Shape, Inout) -> Double
+dist (t, shp, io) = t
+
+distance' :: Shape -> Ray -> [(Double, Shape, Inout)]
+distance' shp ray = [x | x <- (distance shp ray), dist x > 0]
 
 getNormal :: Shape -> Vector3 -> Vector3
 getNormal (Plain n d) pt = n
@@ -89,11 +92,11 @@ getNormal (Sphere c r) pt = fromJust (normal (pt `sub` c))
 
 getNormal' :: Shape -> Vector3 -> Inout -> Vector3
 getNormal' (Plain n d) pt i = directNormal n i
-getNormal' (Sphere c r) pt i = directNormal (sphereNormal p c) i
+getNormal' (Sphere c r) pt i = directNormal (sphereNormal pt c) i
 
 intersect' :: Shape -> Ray -> [(Ray, Inout)]
-intersect' s@(Plain n _) ray = [(Ray (target ray t) n, io) | (t, io) <- distance s ray]
-intersect' s@(Sphere c _) ray = [(newray ray t c, io) | (t, io) <- distance s ray]
+intersect' s@(Plain n _) ray = [(Ray (target ray t) n, io) | (t, shp, io) <- distance s ray]
+intersect' s@(Sphere c _) ray = [(newray ray t c, io) | (t, shp, io) <- distance s ray]
 
 newray :: Ray -> Double -> Vector3 -> Ray
 newray ray t c = Ray is (sphereNormal is c)
