@@ -46,6 +46,9 @@ data Intersection = Intersection {
   , inout :: Inout
   } deriving Show
 
+instance Eq Intersection where
+  (==) is is' = (isdist is) == (isdist is')
+
 instance Ord Intersection where
   compare is is'
     | isdist is == isdist is' = EQ

@@ -7,6 +7,8 @@ module Raytrace where
 import Algebra
 import Geometry
 import Physics
+import Object
+import Scene
 
 class Raytrace a where
   trace :: a -> Ray -> Material -> Int -> Intensity
@@ -37,4 +39,5 @@ psearch prims ray
 
 tracePoint :: (Int, Int) -> Rgb
 tracePoint (y, x) = Rgb x y 0
+
 

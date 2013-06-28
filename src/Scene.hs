@@ -12,7 +12,7 @@ import Object
 data Scene = Scene {
     atomos  :: Material
   , ambient :: Intensity    
-  , lights  :: [Light]
+  , lgts    :: [Light]
   , prims   :: [Primitive]
   , clip    :: Double
   , depth   :: Int
@@ -32,7 +32,7 @@ traceDepth = 1
 xReso = 2
 yReso = 2
 
-material0 = Material intensityBlack intensityBlack IntensityBlack 0 1.0
+material0 = Material intensityBlack intensityBlack intensityBlack intensityBlack 0 1.0
 
 iAmb = Intensity 0 0 0
 
@@ -44,9 +44,14 @@ lights = [
   ParallelLight (Vector3 1 (-1) 1) (Intensity 40 40 40)
   ]
 
+
+floor1 = Material intensityBlack intensityBlack intensityBlack intensityBlack 0 1.0
+ball1 =  Material intensityBlack intensityBlack intensityBlack intensityBlack 0 1.0
+
+
 primitives :: [Primitive]
 primitives = [
-  Primitive (Plain (Vector3 0 1 0) 0) (Material),
-  Primitive (Sphere (Vector3 0 0.5 0) 0.1) (Material)
+  Primitive (Plain (Vector3 0 1 0) 0) floor1,
+  Primitive (Sphere (Vector3 0 0.5 0) 0.1) ball1
   ]
 
