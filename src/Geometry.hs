@@ -22,6 +22,9 @@ instance Show Inout where
 
 data Ray = Ray {rpos :: Vector3, rdir :: Vector3} deriving Show
 
+instance Eq Ray where
+  (==) a b = (rpos a == rpos b) && (rdir a == rdir b)
+
 initRay :: Vector3 -> Vector3 -> Maybe Ray
 initRay pos dir
   | ndir == Nothing  = Nothing
@@ -47,6 +50,10 @@ data Shape = Plain Vector3 Double
            | Sphere Vector3 Double
            | Csg CsgOpe Shape Shape
 
+instance Eq Shape where
+  (==) (Plain n1 d1) (Plain n2 d2) = (n1 == n2) && (d1 == d2)
+  (==) (Sphere c1 r1) (Sphere c2 r2) = (c1 == c2) && (r1 == r2)
+
 instance Show Shape where
   show (Plain n d) = "[" ++ (show n) ++ "," ++ (show d) ++ "]"
   show (Sphere c r) = "[" ++ show c ++ "," ++ show r ++ "]"
@@ -54,12 +61,12 @@ instance Show Shape where
 initPlain :: Vector3 -> Double -> Maybe Shape
 initPlain n d
   | n == o3   = Nothing
-  | otherwise = Just (Plain (fromJust nnormal) d)
-  where nnormal = normal n
+  | otherwise = Just (Plain nnormal d)
+  where nnormal = fromJust $ normal n
 
 initSphere :: Vector3 -> Double -> Maybe Shape
 initSphere c r
-  | r == 0    = Nothing
+  | r <= 0    = Nothing
   | otherwise = Just (Sphere c r)
 
 side :: Shape -> Vector3 -> Double
@@ -84,29 +91,25 @@ dist :: (Double, Shape, Inout) -> Double
 dist (t, shp, io) = t
 
 distance' :: Shape -> Ray -> [(Double, Shape, Inout)]
-distance' shp ray = [x | x <- (distance shp ray), dist x > 0]
+distance' shp ray = [x | x <- (distance shp ray), dist x >= 0.02]
+--distance' shp ray = [x | x <- (distance shp ray), dist x >= (-0.001)]
 
 getNormal :: Shape -> Vector3 -> Vector3
 getNormal (Plain n d) pt = n
 getNormal (Sphere c r) pt = fromJust (normal (pt `sub` c))
 
 getNormal' :: Shape -> Vector3 -> Inout -> Vector3
-getNormal' (Plain n d) pt i = directNormal n i
-getNormal' (Sphere c r) pt i = directNormal (sphereNormal pt c) i
+getNormal' shp pt i = directNormal (getNormal shp pt) i
 
 intersect' :: Shape -> Ray -> [(Ray, Inout)]
 intersect' s@(Plain n _) ray = [(Ray (target ray t) n, io) | (t, shp, io) <- distance s ray]
 intersect' s@(Sphere c _) ray = [(newray ray t c, io) | (t, shp, io) <- distance s ray]
 
 newray :: Ray -> Double -> Vector3 -> Ray
-newray ray t c = Ray is (sphereNormal is c)
+newray ray t c = Ray is (is `sub` c)
   where is = target ray t
 
 directNormal :: Vector3 -> Inout -> Vector3
 directNormal n io
-  | io == Outside = n
-  | otherwise     = neg n
-
-sphereNormal :: Vector3 -> Vector3 -> Vector3
-sphereNormal pt c = fromJust (normal (pt `sub` c))
-
+  | io == Inside = n
+  | otherwise    = neg n

@@ -24,7 +24,6 @@ imageToStr :: [Rgb] -> [Char]
 imageToStr []   = []
 imageToStr (x:xs) = rgbToChar x ++ imageToStr xs
 
-
 -- intensity (lx)
 -----------------
 
@@ -37,8 +36,8 @@ initIntensity :: Double -> Double -> Double -> Double -> Intensity
 initIntensity r g b i = (Intensity r g b) `iscale` i
 
 -- l is clipping value to RGB
-toRgb :: Intensity -> Double -> Rgb
-toRgb (Intensity r g b) l = Rgb ir ig ib
+toRgb :: Double -> Intensity -> Rgb
+toRgb l (Intensity r g b) = Rgb ir ig ib
   where ir = toColor r l
         ig = toColor g l
         ib = toColor b l
@@ -59,6 +58,9 @@ iscale (Intensity r g b) s
 
 decay :: Intensity -> Double -> Intensity
 decay i d = iscale i (1.0 / d)
+
+idiff :: Intensity -> Intensity -> Double
+idiff (Intensity ar ag ab) (Intensity br bg bb) = (abs (ar - br)) + (abs (ag - bg)) + (abs (ab - bb))
 
 intensityBlack = Intensity 0 0 0
 
