@@ -7,6 +7,7 @@ module Main(
 import Data.Char
 import Data.Maybe
 import Data.List
+import Data.Array
 import qualified Data.Map as Map
 
 import Algebra
@@ -61,7 +62,7 @@ compareArround imgmap pt ofst
 detailPoint :: Intensity -> Int -> Intensity
 detailPoint it pt
   | otherwise  = (fst wtotal) `iscale` (1 / snd wtotal)
-  where iwaight = gaussian !! 12
+  where iwaight = gaussian ! 12
         wtotal  = foldl waightave (it `iscale` iwaight, iwaight) (map (subtrace pt) [6, 8, 16, 18])
 --        wtotal  = foldl waightave (it `iscale` iwaight, iwaight) (map (subtrace pt) [1, 9, 15, 23])
 
@@ -70,7 +71,7 @@ waightave (a, aw) (b, bw) = (a `iadd` (b `iscale` bw), aw + bw)
 
 subtrace :: Int -> Int -> (Intensity, Double)
 subtrace pt st = (tracePoint (py + sy, px + sx), gus)
-  where gus = gaussian !! st
+  where gus = gaussian ! st
         (sy, sx) = filterstep !! st
         px = fromIntegral (pt `mod` xReso)
         py = ((fromIntegral pt) - px) / (fromIntegral xReso)

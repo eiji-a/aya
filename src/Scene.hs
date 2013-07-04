@@ -35,8 +35,8 @@ iclip = 120 :: Double
 
 traceDepth = 3 :: Int
 
-xReso = 512 :: Int
-yReso = 512 :: Int
+xReso = 256 :: Int
+yReso = 256 :: Int
 
 xRegion = (-1.0, 1.0)
 yRegion = (-1.0, 1.0)
@@ -55,7 +55,7 @@ iAmb = Intensity 0 0 0
 
 lights :: [Light]
 lights =
-  [ PointLight (Vector3 (-1) 3 1.5) (Intensity 400 300 200)
+  [ PointLight (Vector3 (-1) 3 1.5) (Intensity 350 350 200)
   , ParallelLight (Vector3 1 1 (-1)) (Intensity 10 30 30)
   ]
 
