@@ -8,6 +8,7 @@ import Data.Maybe
 import Algebra
 import Geometry
 import Physics
+import Mapping
 
 --
 -- light
@@ -43,6 +44,7 @@ data Intersection' = Intersection' {
     isdist  :: Double
   , isshape :: Shape
   , ismate' :: Material
+  , isn'    :: Vector3
   , inout   :: Inout
   } deriving Show
 
@@ -65,22 +67,27 @@ intersect (Primitive shp mate) ray = map mkIs' (distance' shp ray)
   where mkIs' = mkIs mate
 
 mkIs :: Material -> (Double, Shape, Inout) -> Intersection'
-mkIs mate (t, shp, io) = Intersection' t shp mate io
+mkIs mate (t, shp, io) = Intersection' t shp mate o3 io
 
 data Intersection = Intersection
-  { ismate :: Material
-  , ispt   :: Vector3
-  , isn    :: Vector3
-  , isedir :: Vector3
-  , isrray :: Maybe Ray
+  { ismate1 :: Material
+  , ismate2 :: Material
+  , ispt    :: Vector3
+  , isn     :: Vector3
+  , isedir  :: Vector3
+  , isrray  :: Maybe Ray
+  , istray  :: Maybe Ray
+  , iskr    :: Double
+  , iskt    :: Double
   } deriving Show
 
-initIntersection :: Maybe Intersection' -> Ray -> Intersection
-initIntersection is' ray = Intersection (ismate' is) pt n edir rray
+initIntersection :: Maybe Intersection' -> Ray -> Material -> Material -> Intersection
+initIntersection is' ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray tray kr kt
   where is = fromJust is'
         pt = target ray (isdist is)
         n  = getNormal' (isshape is) pt (inout is)
+        cos1  = -(n `dot` edir)
         edir = rdir ray
-        rray = initRay pt (n `scale` (-2 * (n `dot` edir)))
-
-
+        rray = initRay pt ((n `scale` (2 * cos1)) `add` edir)
+        mate2 = if (inout is) == Inside then ismate' is else mate0
+        (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)

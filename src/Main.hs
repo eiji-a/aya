@@ -54,7 +54,7 @@ retrace imgmap pt
 compareArround :: Map.Map Int Intensity -> Int -> Int -> Bool
 compareArround imgmap pt ofst
   | it' == Nothing = False
-  | otherwise      = fromJust it `idiff` fromJust it' > iclip * 0.1
+  | otherwise      = fromJust it `idiff` fromJust it' > iclip * 0.05
   where pt' = pt + ofst
         it  = Map.lookup pt imgmap
         it' = Map.lookup pt' imgmap

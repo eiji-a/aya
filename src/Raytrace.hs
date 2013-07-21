@@ -23,16 +23,10 @@ instance Raytrace Tracer where
   trace tr@(Tracer lgts prims) (Just ray) mate depth
     | mis == Nothing = intensityBlack
     | otherwise      = (brightnessDiff lgts prims is) `iadd`
-                       (calcSpec is tr mate (depth - 1))
+                       (calcSpec is tr (depth - 1))   `iadd`
+                       (calcTran is tr (depth - 1))
     where mis   = psearch prims ray
-          is    = initIntersection mis ray
-{--
-    | otherwise     = brightnessDiff mate1 tr ray pt n
-                      `iadd` trace tr rs mate (depth - 1)
-                      -- trace t rt mate1 (depth - 1)
-          rs    = fresnel n ray pt
-          -- rt = Ray pt ey3
---}
+          is    = initIntersection mis ray material0 mate
 
 psearch :: [Primitive] -> Ray -> Maybe Intersection'
 psearch prims ray
@@ -41,7 +35,7 @@ psearch prims ray
   where iss = concat [intersect x ray | x <- prims]
 
 brightnessDiff :: [Light] -> [Primitive] -> Intersection -> Intensity
-brightnessDiff lgts prims is = (mdiff $ ismate is) `imul` addLight lgts prims is
+brightnessDiff lgts prims is = (mdiff $ ismate2 is) `imul` addLight lgts prims is
 
 addLight :: [Light] -> [Primitive] -> Intersection -> Intensity
 addLight [] _ _ = intensityBlack
@@ -62,8 +56,18 @@ calcHighlight is ld
   | otherwise       = (fromJust hvec `dot` (isn is)) ^ 200
   where hvec = normal (ld `sub` (isedir is))
 
-calcSpec :: Intersection -> Tracer -> Material -> Int -> Intensity
-calcSpec is tr mate0 depth
-  | spec == intensityBlack = intensityBlack
-  | otherwise = (trace tr (isrray is) mate0 depth) `imul` spec
-  where spec = mspec $ ismate is
+calcSpec :: Intersection -> Tracer -> Int -> Intensity
+calcSpec is tr depth
+  | kr        == 0.0     = intensityBlack
+  | isrray is == Nothing = intensityBlack
+  | otherwise            = (trace tr (isrray is) (ismate1 is) depth) `imul` spec
+  where kr = (iskr is)
+        spec = (mspec $ ismate2 is) `iscale` kr
+
+calcTran :: Intersection -> Tracer -> Int -> Intensity
+calcTran is tr depth
+  | kt   == 0.0    = intensityBlack
+  | istray is == Nothing = intensityBlack
+  | otherwise            = (trace tr (istray is) (ismate2 is) depth) `imul` tran
+  where kt = iskt is
+        tran = (mtran $ ismate2 is) `iscale` kt

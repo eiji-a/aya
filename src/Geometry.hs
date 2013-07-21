@@ -33,13 +33,32 @@ initRay pos dir
 target :: Ray -> Double -> Vector3
 target (Ray pos dir) t = pos `add` (dir `scale` t)
 
--- dir : eye direction
--- n   : normal vector
--- pt  : intersection point
-fresnelRay :: Ray -> Vector3 -> Vector3 -> Maybe Ray
-fresnelRay (Ray _ dir) n pt = initRay pt (dir `sub` (n `scale` (2 * cos)))
-  where cos = dir `dot` n
+--
+-- fresnel
+--
+-- pt : point of intersection
+-- e  : eye direction
+-- n  : normal vector
+-- cos1 : inner product of e and n
+-- eta1 : refractive index of current object
+-- eta2 : refractive index of front object
 
+fresnel :: Vector3 -> Vector3 -> Vector3 -> Double -> Double -> Double -> (Maybe Ray, Double, Double)
+fresnel pt e n cos1 eta1 eta2
+  | eta1 == 0 = (Nothing, 1.0, 0.0)
+  | eta2 == 0 = (Nothing, 1.0, 0.0)
+  | g2 < 0    = (Nothing, 1.0, 0.0)
+  | tdir == Nothing = (Nothing, 1.0, 0.0)
+  | otherwise = (tray, kr, kt)
+  where eta = eta2 / eta1
+        g2 = eta * eta + cos1 * cos1 - 1
+        g  = sqrt g2
+        tdir = (e `add` (n `scale` (cos1 - g))) `divide` eta
+        tray = initRay pt (fromJust tdir)
+        n' = (eta - 1) / (eta + 1)
+        r0 = n' * n'
+        kr = r0 + (1 - r0) * ((1 - cos1) ^ 5)
+        kt = 1 - kr
 
 -- shape class
 -----------------------------------------------------------

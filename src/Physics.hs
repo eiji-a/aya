@@ -63,6 +63,7 @@ idiff :: Intensity -> Intensity -> Double
 idiff (Intensity ar ag ab) (Intensity br bg bb) = (abs (ar - br)) + (abs (ag - bg)) + (abs (ab - bb))
 
 intensityBlack = Intensity 0 0 0
+intensityWhite = Intensity 1 1 1
 
 --
 -- Material
@@ -79,5 +80,4 @@ data Material = Material {
   , mgls :: Int
   , refidx :: Double         -- refractive index
   } deriving Show
-
 
