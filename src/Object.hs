@@ -43,10 +43,10 @@ lint (ParallelLight _ i) = i
 data Intersection' = Intersection' {
     isdist  :: Double
   , isshape :: Shape
-  , ismate' :: Material
+  , ismap   :: MapFunc
   , isn'    :: Vector3
   , inout   :: Inout
-  } deriving Show
+  }
 
 instance Eq Intersection' where
   (==) is is' = (isdist is) == (isdist is')
@@ -60,14 +60,14 @@ instance Ord Intersection' where
 -- primitive
 ------------
 
-data Primitive = Primitive Shape Material deriving Show
+data Primitive = Primitive Shape MapFunc
 
 intersect :: Primitive -> Ray -> [Intersection']
-intersect (Primitive shp mate) ray = map mkIs' (distance' shp ray)
-  where mkIs' = mkIs mate
+intersect (Primitive shp mapf) ray = map mkIs' (distance' shp ray)
+  where mkIs' = mkIs mapf
 
-mkIs :: Material -> (Double, Shape, Inout) -> Intersection'
-mkIs mate (t, shp, io) = Intersection' t shp mate o3 io
+mkIs :: MapFunc -> (Double, Shape, Inout) -> Intersection'
+mkIs mapf (t, shp, io) = Intersection' t shp mapf o3 io
 
 data Intersection = Intersection
   { ismate1 :: Material
@@ -89,5 +89,11 @@ initIntersection is' ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray t
         cos1  = -(n `dot` edir)
         edir = rdir ray
         rray = initRay pt ((n `scale` (2 * cos1)) `add` edir)
-        mate2 = if (inout is) == Inside then ismate' is else mate0
+        mate2 = selectMaterial is pt n mate0
         (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
+
+selectMaterial :: Intersection' -> Vector3 -> Vector3 -> Material -> Material
+selectMaterial is pt n mate0
+  | inout is == Inside = (ismap is) pt
+  | otherwise          = mate0
+

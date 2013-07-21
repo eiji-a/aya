@@ -10,6 +10,7 @@ import Algebra
 import Geometry
 import Physics
 import Object
+import Mapping
 import Filter
 
 {--
@@ -55,21 +56,25 @@ iAmb = Intensity 0 0 0
 
 lights :: [Light]
 lights =
-  [ PointLight (Vector3 (-1) 3 1.5) (Intensity 350 350 200)
-  , ParallelLight (Vector3 1 1 (-1)) (Intensity 10 30 25)
+  [ PointLight (Vector3 (-1) 3 1.5) (Intensity 350 350 350)
+  , ParallelLight (Vector3 1 1 (-1)) (Intensity 20 20 20)
   ]
 
 
-floor1 = Material (Intensity 0.5 1.0 1.0) (Intensity 0.5 0.1 0.1) intensityBlack intensityBlack 0 0
-ball1 =  Material (Intensity 1 0.5 0.3) (Intensity 0.3 0.5 0.7) intensityBlack intensityBlack 0 0.0
+floor1 = Material (Intensity 0.8 0 1) (Intensity 0.5 0.5 0.5) intensityBlack intensityBlack 0 0
+floor2 = Material (Intensity 1.0 1.0 1.0) (Intensity 1 1 1) intensityBlack intensityBlack 0 0
+ball1 =  Material (Intensity 1 0.5 0.3) (Intensity 0.5 1.0 0.8) intensityBlack intensityBlack 0 0.0
 ball2 =  Material intensityBlack intensityWhite intensityWhite intensityBlack 0 1.333
 
+mfloor = mapCheckXZ floor1 floor2 1
+mball1 = mapUni ball1
+mball2 = mapUni ball2
 
 primitives :: [Primitive]
 primitives =
-  [ Primitive (Plain (Vector3 0 1 0) 2) floor1
-  , Primitive (Sphere (Vector3 0 0.0 3.2) 1) ball1
-  , Primitive (Sphere (Vector3 0.5 (-1.3) 2) 0.5) ball2
+  [ Primitive (Plain (Vector3 0 1 0) 2) mfloor
+  , Primitive (Sphere (Vector3 (-0.5) (-0.5) 3.2) 1) mball1
+  , Primitive (Sphere (Vector3 0.5 (-0.2) 1) 0.5) mball2
   ]
 
 
