@@ -9,3 +9,5 @@ cabal-dev
 aya.*
 
 .DS_Store
+
+src/Main
