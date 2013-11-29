@@ -23,7 +23,7 @@ testEye =
   , eey ~=? neg ey3
   , stepx ~=? 2.0 / 256
   , stepy ~=? 2.0 / 256
-  , initPoint ~=? Vector3 (-1) 1 1
+  , origin ~=? Vector3 (-1) 1 1
   ]
 
 testGenerateRay :: [Test]

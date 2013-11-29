@@ -46,7 +46,7 @@ getLightIntensity lgt prims is
   | mis == Nothing = lintensity `iadd` hlgt
   | otherwise      = intensityBlack
   where (ld, decay) = ldir lgt (ispt is)
-        mis         = psearch prims (fromJust $ initRay (ispt is) (fromJust ld))
+        mis         = psearch prims $ fromJust $ initRay (ispt is) $ fromJust ld
         lintensity  = (lint lgt) `iscale` ((fromJust ld `dot` isn is) / decay)
         hlgt        = (lint lgt) `iscale` (calcHighlight is (fromJust ld))
 

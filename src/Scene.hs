@@ -85,14 +85,14 @@ eex = upper `cross` eyedir
 eey = eex `cross` eyedir
 stepx = (snd xRegion - fst xRegion) / fromIntegral xReso
 stepy = (snd yRegion - fst yRegion) / fromIntegral yReso
-initPoint = (eyedir `scale` focus) `add`
-            (eex `scale` ((fst xRegion) + 0.5 * stepx)) `sub`
-            (eey `scale` ((snd yRegion) + 0.5 * stepy))
+origin = (eyedir `scale` focus) `add`
+         (eex `scale` ((fst xRegion) + 0.5 * stepx)) `sub`
+         (eey `scale` ((snd yRegion) + 0.5 * stepy))
 
 generateRay :: (Double, Double) -> Maybe Ray
 generateRay (y, x) = initRay eyepos
-                     (initPoint `add` (eex `scale` (stepx * x))
-                                `add` (eey `scale` (stepy * y)))
+                     (origin `add` (eex `scale` (stepx * x))
+                             `add` (eey `scale` (stepy * y)))
 
 offsetXy :: (Int, Int) -> (Int, Int) -> Int
 offsetXy (y, x) (dy, dx)

@@ -20,16 +20,17 @@ instance Show Inout where
 -- ray 
 ----------------------------------------------------------
 
-data Ray = Ray {rpos :: Vector3, rdir :: Vector3} deriving Show
+data Ray = Ray {rpos :: Point3, rdir :: Direction3} deriving Show
 
 instance Eq Ray where
   (==) a b = (rpos a == rpos b) && (rdir a == rdir b)
 
-initRay :: Vector3 -> Vector3 -> Maybe Ray
+initRay :: Point3 -> Direction3 -> Maybe Ray
 initRay pos dir
   | ndir == Nothing  = Nothing
-  | otherwise        = Just (Ray pos (fromJust ndir))
+  | otherwise        = Just $ Ray pos $ fromJust ndir
   where ndir = normal dir
+
 target :: Ray -> Double -> Vector3
 target (Ray pos dir) t = pos `add` (dir `scale` t)
 
@@ -54,7 +55,7 @@ fresnel pt e n cos1 eta1 eta2
         g2 = eta * eta + cos1 * cos1 - 1
         g  = sqrt g2
         tdir = (e `add` (n `scale` (cos1 - g))) `divide` eta
-        tray = initRay pt (fromJust tdir)
+        tray = initRay pt $ fromJust tdir
         n' = (eta - 1) / (eta + 1)
         r0 = n' * n'
         kr = r0 + (1 - r0) * ((1 - cos1) ^ 5)

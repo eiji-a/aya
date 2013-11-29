@@ -4,6 +4,8 @@
 
 module Algebra where
 
+import Data.Maybe
+
 -----------
 -- CLASS --
 -----------
@@ -90,8 +92,30 @@ instance Vector Vector3 where
 cross :: Vector3 -> Vector3 -> Vector3
 cross (Vector3 ax ay az) (Vector3 bx by bz) = Vector3 (ay * bz - by * az) (az * bx - bz * ax) (ax * by - ay * bx)
 
-o3  = Vector3 0 0 0
-ex3 = Vector3 1 0 0
-ey3 = Vector3 0 1 0
-ez3 = Vector3 0 0 1
+-- 3 dimensional point
+----------------------
+
+type Point3 = Vector3
+
+initPoint :: Double -> Double -> Double -> Point3
+initPoint x y z = Vector3 x y z
+
+o3  = initPoint 0 0 0
+
+-- 3 dimentional direction vector
+---------------------------------
+
+type Direction3 = Vector3
+
+initDirection :: Double -> Double -> Double -> Maybe Direction3
+initDirection x y z = checkDirection (Just $ Vector3 x y z)
+
+checkDirection :: Maybe Vector3 -> Maybe Direction3
+checkDirection vec
+  | vec == Nothing = Nothing
+  | otherwise      = normal $ fromJust vec
+
+ex3 = initDirection 1 0 0
+ey3 = initDirection 0 1 0
+ez3 = initDirection 0 0 1
 
