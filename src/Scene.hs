@@ -81,18 +81,15 @@ primitives =
 -------------------------------------------------------------
 -- automatic caluculation
 
-eex = upper `cross` eyedir
-eey = eex `cross` eyedir
+eex = upper ^** eyedir
+eey = eex ^** eyedir
 stepx = (snd xRegion - fst xRegion) / fromIntegral xReso
 stepy = (snd yRegion - fst yRegion) / fromIntegral yReso
-origin = (eyedir `scale` focus) `add`
-         (eex `scale` ((fst xRegion) + 0.5 * stepx)) `sub`
-         (eey `scale` ((snd yRegion) + 0.5 * stepy))
+origin = (eyedir ^* focus) ^+
+         (eex ^* ((fst xRegion) + 0.5 * stepx)) ^- (eey ^* ((snd yRegion) + 0.5 * stepy))
 
 generateRay :: (Double, Double) -> Maybe Ray
-generateRay (y, x) = initRay eyepos
-                     (origin `add` (eex `scale` (stepx * x))
-                             `add` (eey `scale` (stepy * y)))
+generateRay (y, x) = initRay eyepos (origin ^+ (eex ^* (stepx * x)) ^+ (eey ^* (stepy * y)))
 
 offsetXy :: (Int, Int) -> (Int, Int) -> Int
 offsetXy (y, x) (dy, dx)

@@ -4,7 +4,10 @@
 
 module Physics where
 
+import Data.Maybe
+
 import Algebra
+import Geometry
 
 -- RGB
 ------
@@ -20,8 +23,8 @@ rgbMaxDouble = fromIntegral rgbMax
 rgbToChar :: Rgb -> [Char]
 rgbToChar (Rgb r g b) = show r ++ " " ++ show g ++ " " ++ show b ++ " "
 
-imageToStr :: [Rgb] -> [Char]
-imageToStr []   = []
+imageToStr :: [Rgb] -> String
+imageToStr []     = ""
 imageToStr (x:xs) = rgbToChar x ++ imageToStr xs
 
 -- intensity (lx)
@@ -33,7 +36,7 @@ instance Eq Intensity where
   (Intensity ar ag ab) == (Intensity br bg bb) = (ar == br) && (ag == bg) && (ab == bb)
 
 initIntensity :: Double -> Double -> Double -> Double -> Intensity
-initIntensity r g b i = (Intensity r g b) `iscale` i
+initIntensity r g b i = (Intensity r g b) !* i
 
 -- l is clipping value to RGB
 toRgb :: Double -> Intensity -> Rgb
@@ -45,19 +48,19 @@ toRgb l (Intensity r g b) = Rgb ir ig ib
 toColor :: Double -> Double -> Int
 toColor c l = min rgbMax (round (rgbMaxDouble * c / l))
 
-iadd :: Intensity -> Intensity -> Intensity
-iadd (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar + br) (ag + bg) (ab + bb)
+(!+) :: Intensity -> Intensity -> Intensity
+(Intensity ar ag ab) !+ (Intensity br bg bb) = Intensity (ar + br) (ag + bg) (ab + bb)
 
-imul :: Intensity -> Intensity -> Intensity
-imul (Intensity ar ag ab) (Intensity br bg bb) = Intensity (ar * br) (ag * bg) (ab * bb)
+(!**) :: Intensity -> Intensity -> Intensity
+(Intensity ar ag ab) !** (Intensity br bg bb) = Intensity (ar * br) (ag * bg) (ab * bb)
 
-iscale :: Intensity -> Double -> Intensity
-iscale (Intensity r g b) s
+(!*) :: Intensity -> Double -> Intensity
+(Intensity r g b) !* s
   | s <= 0    = intensityBlack
   | otherwise = Intensity (r * s) (g * s) (b * s)
 
 decay :: Intensity -> Double -> Intensity
-decay i d = iscale i (1.0 / d)
+decay i d = i !* (1.0 / d)
 
 idiff :: Intensity -> Intensity -> Double
 idiff (Intensity ar ag ab) (Intensity br bg bb) = (abs (ar - br)) + (abs (ag - bg)) + (abs (ab - bb))
@@ -80,4 +83,33 @@ data Material = Material {
   , mgls :: Int
   , refidx :: Double         -- refractive index
   } deriving Show
+
+--
+-- fresnel
+--
+-- pt : point of intersection
+-- e  : eye direction
+-- n  : normal vector
+-- cos1 : inner product of e and n
+-- eta1 : refractive index of current object
+-- eta2 : refractive index of front object
+
+type Catadioptric = (Maybe Ray, Double, Double)
+
+fresnel :: Point3 -> Direction3 -> Direction3 -> Double -> Double -> Double -> Catadioptric
+fresnel pt e n cos1 eta1 eta2
+  | eta1 == 0       = (Nothing, 1.0, 0.0)
+  | eta2 == 0       = (Nothing, 1.0, 0.0)
+  | g2 < 0          = (Nothing, 1.0, 0.0)
+  | tdir == Nothing = (Nothing, 1.0, 0.0)
+  | otherwise = (tray, kr, kt)
+  where eta = eta2 / eta1
+        g2 = eta * eta + cos1 * cos1 - 1
+        g  = sqrt g2
+        tdir = (e ^+ (n ^* (cos1 - g))) ^/ eta
+        tray = initRay pt $ fromJust tdir
+        n' = (eta - 1) / (eta + 1)
+        r0 = n' * n'
+        kr = r0 + (1 - r0) * ((1 - cos1) ^ 5)
+        kt = 1 - kr
 

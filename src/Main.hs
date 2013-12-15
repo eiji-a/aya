@@ -61,13 +61,13 @@ compareArround imgmap pt ofst
 
 detailPoint :: Intensity -> Int -> Intensity
 detailPoint it pt
-  | otherwise  = (fst wtotal) `iscale` (1 / snd wtotal)
+  | otherwise  = (fst wtotal) !* (1 / snd wtotal)
   where iwaight = gaussian ! 12
-        wtotal  = foldl waightave (it `iscale` iwaight, iwaight) (map (subtrace pt) [6, 8, 16, 18])
---        wtotal  = foldl waightave (it `iscale` iwaight, iwaight) (map (subtrace pt) [1, 9, 15, 23])
+        wtotal  = foldl waightave (it !* iwaight, iwaight) (map (subtrace pt) [6, 8, 16, 18])
+--        wtotal  = foldl waightave (it !* iwaight, iwaight) (map (subtrace pt) [1, 9, 15, 23])
 
 waightave :: (Intensity, Double) -> (Intensity, Double) -> (Intensity, Double)
-waightave (a, aw) (b, bw) = (a `iadd` (b `iscale` bw), aw + bw)
+waightave (a, aw) (b, bw) = (a !+ (b !* bw), aw + bw)
 
 subtrace :: Int -> Int -> (Intensity, Double)
 subtrace pt st = (tracePoint (py + sy, px + sx), gus)

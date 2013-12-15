@@ -16,15 +16,16 @@ class Raytrace a where
   trace :: a -> Maybe Ray -> Material -> Int -> Intensity
 
 data Tracer = Tracer [Light] [Primitive]
+data TraceDirection = Speculum | Transparence deriving Eq
 
 instance Raytrace Tracer where
-  trace _ _ _ 0       = intensityBlack
-  trace _ Nothing _ _ = intensityBlack
+  trace _ _ _ 0       = intensityBlack   -- achive max trace depth
+  trace _ Nothing _ _ = intensityBlack   -- no ray for trace
   trace tr@(Tracer lgts prims) (Just ray) mate depth
     | mis == Nothing = intensityBlack
-    | otherwise      = (brightnessDiff lgts prims is) `iadd`
-                       (calcSpec is tr (depth - 1))   `iadd`
-                       (calcTran is tr (depth - 1))
+    | otherwise      =  (brightnessDiff lgts prims is)
+                     !+ (calcTrace Speculum     is tr (depth - 1))
+                     !+ (calcTrace Transparence is tr (depth - 1))
     where mis   = psearch prims ray
           is    = initIntersection mis ray material0 mate
 
@@ -35,39 +36,35 @@ psearch prims ray
   where iss = concat [intersect x ray | x <- prims]
 
 brightnessDiff :: [Light] -> [Primitive] -> Intersection -> Intensity
-brightnessDiff lgts prims is = (mdiff $ ismate2 is) `imul` addLight lgts prims is
+brightnessDiff lgts prims is = (mdiff $ ismate2 is) !** addLight lgts prims is
 
 addLight :: [Light] -> [Primitive] -> Intersection -> Intensity
 addLight [] _ _ = intensityBlack
-addLight (l:ls) prims is = (getLightIntensity l prims is) `iadd` (addLight ls prims is)
+addLight (l:ls) prims is = (getLightIntensity l prims is) !+ (addLight ls prims is)
 
 getLightIntensity :: Light -> [Primitive] -> Intersection -> Intensity
 getLightIntensity lgt prims is
-  | mis == Nothing = lintensity `iadd` hlgt
+  | mis == Nothing = lintensity !+ hlgt
   | otherwise      = intensityBlack
   where (ld, decay) = ldir lgt (ispt is)
         mis         = psearch prims $ fromJust $ initRay (ispt is) $ fromJust ld
-        lintensity  = (lint lgt) `iscale` ((fromJust ld `dot` isn is) / decay)
-        hlgt        = (lint lgt) `iscale` (calcHighlight is (fromJust ld))
+        lintensity  = (lint lgt) !* ((fromJust ld ^. isn is) / decay)
+        hlgt        = (lint lgt) !* (calcHighlight is (fromJust ld))
 
 calcHighlight :: Intersection -> Vector3 -> Double
 calcHighlight is ld
   | hvec == Nothing = 0
-  | otherwise       = (fromJust hvec `dot` (isn is)) ^ 200
-  where hvec = normal (ld `sub` (isedir is))
+  | otherwise       = (fromJust hvec ^. (isn is)) ^ 200
+  where hvec = normal (ld ^- (isedir is))
 
-calcSpec :: Intersection -> Tracer -> Int -> Intensity
-calcSpec is tr depth
-  | kr        == 0.0     = intensityBlack
-  | isrray is == Nothing = intensityBlack
-  | otherwise            = (trace tr (isrray is) (ismate1 is) depth) `imul` spec
-  where kr = (iskr is)
-        spec = (mspec $ ismate2 is) `iscale` kr
+calcTrace :: TraceDirection -> Intersection -> Tracer -> Int -> Intensity
+calcTrace td is tr depth
+  | kp  == 0.0     = intensityBlack
+  | ray == Nothing = intensityBlack
+  | otherwise      = (trace tr ray mate depth) !** (mcolor !* kp)
+  where (kp, ray, mate, mcolor) = getTraceParam td is
 
-calcTran :: Intersection -> Tracer -> Int -> Intensity
-calcTran is tr depth
-  | kt   == 0.0    = intensityBlack
-  | istray is == Nothing = intensityBlack
-  | otherwise            = (trace tr (istray is) (ismate2 is) depth) `imul` tran
-  where kt = iskt is
-        tran = (mtran $ ismate2 is) `iscale` kt
+getTraceParam :: TraceDirection -> Intersection -> (Double, Maybe Ray, Material, Intensity)
+getTraceParam td is
+  | td == Speculum     = (iskr is, isrray is, ismate1 is, mspec $ ismate2 is)
+  | td == Transparence = (iskt is, istray is, ismate2 is, mtran $ ismate2 is)

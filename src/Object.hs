@@ -19,13 +19,14 @@ data Light =
   | ParallelLight Vector3 Intensity
   deriving Show
 
+type LightDirection = (Maybe Vector3, Double)
 -- return: L vector and decay factor
-ldir :: Light -> Vector3 -> (Maybe Vector3, Double)
+ldir :: Light -> Vector3 -> LightDirection
 ldir (ParallelLight dir _) _ = (Just dir, 1.0)
 ldir (PointLight pos _) pt
   | len == 0  = (Nothing, 0)
-  | otherwise = (ldir `divide` len, len2)
-  where ldir = pos `sub` pt
+  | otherwise = (ldir ^/ len, len2)
+  where ldir = pos ^- pt
         len2 = square ldir
         len = sqrt len2
 
@@ -86,9 +87,9 @@ initIntersection is' ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray t
   where is = fromJust is'
         pt = target ray (isdist is)
         n  = getNormal' (isshape is) pt (inout is)
-        cos1  = -(n `dot` edir)
+        cos1  = -(n ^. edir)
         edir = rdir ray
-        rray = initRay pt ((n `scale` (2 * cos1)) `add` edir)
+        rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
         mate2 = selectMaterial is pt n mate0
         (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
 
