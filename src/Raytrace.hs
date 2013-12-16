@@ -2,7 +2,10 @@
 -- RAYTRACE
 --
 
-module Raytrace where
+module Raytrace
+  ( Tracer(..)
+  , trace
+  ) where
 
 import Data.Maybe
 
@@ -29,7 +32,7 @@ instance Raytrace Tracer where
     where mis   = psearch prims ray
           is    = initIntersection mis ray material0 mate
 
-psearch :: [Primitive] -> Ray -> Maybe Intersection'
+psearch :: [Primitive] -> Ray -> Maybe Distance
 psearch prims ray
   | iss == [] = Nothing
   | otherwise = Just (minimum iss)

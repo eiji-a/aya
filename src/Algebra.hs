@@ -2,7 +2,31 @@
 --
 --
 
-module Algebra where
+module Algebra
+  ( (^+)
+  , (^-)
+  , (^*)
+  , (^/)
+  , neg
+  , norm
+  , (^.)
+  , normal
+  , square
+  , Vector2(..)
+  , o2
+  , ex2
+  , ey2
+  , Vector3(..)
+  , (^**)
+  , Point3
+  , initPoint
+  , o3
+  , Direction3
+  , initDirection
+  , ex3
+  , ey3
+  , ez3
+  ) where
 
 import Data.Maybe
 

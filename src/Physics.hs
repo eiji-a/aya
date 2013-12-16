@@ -2,7 +2,21 @@
 -- PHYSICS
 --
 
-module Physics where
+module Physics
+  ( Rgb(..)
+  , toRgb
+  , imageToStr
+  , Intensity
+  , initIntensity
+  , (!+)
+  , (!*)
+  , (!**)
+  , idiff
+  , intensityBlack
+  , intensityWhite
+  , Material(..)
+  , fresnel
+  ) where
 
 import Data.Maybe
 

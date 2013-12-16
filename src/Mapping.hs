@@ -2,7 +2,11 @@
 -- MAPPING
 --
 
-module Mapping where
+module Mapping
+  ( MapFunc
+  , mapCheckXZ
+  , mapUni
+  ) where
 
 import Algebra
 import Physics

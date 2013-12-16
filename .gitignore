@@ -11,3 +11,5 @@ aya.*
 .DS_Store
 
 src/Main
+
+*.png

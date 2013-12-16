@@ -2,7 +2,21 @@
 -- GEOMETRY
 --
 
-module Geometry where
+module Geometry
+  ( Inout(..)
+  , Ray
+  , rpos
+  , rdir
+  , initRay
+  , target
+  , Shape
+  , initPlain
+  , initSphere
+  , CsgOpe(..)
+  , PreDistance
+  , frontObjects
+  , getNormal
+  )  where
 
 import Data.Maybe
 import Algebra
@@ -16,6 +30,11 @@ instance Show Inout where
   show a
     | a == Inside  = "Inside"
     | a == Outside = "Outside"
+
+isInside :: Inout -> Bool
+isInside io
+  | io == Inside = True
+  | otherwise    = False
 
 -- ray 
 ----------------------------------------------------------
@@ -38,11 +57,11 @@ target (Ray pos dir) t = pos ^+ (dir ^* t)
 -----------------------------------------------------------
 
 
-data CsgOpe = CsgOr | CsgAnd | CsgXor deriving Eq
 data Shape = Plain Vector3 Double
            | Sphere Vector3 Double
            | Csg CsgOpe Shape Shape
-type Distance = (Double, Shape, Inout)
+data CsgOpe = CsgOr | CsgAnd | CsgXor deriving Eq
+type PreDistance = (Double, Shape, Inout)
 
 instance Eq Shape where
   (==) (Plain n1 d1) (Plain n2 d2) = (n1 == n2) && (d1 == d2)
@@ -67,7 +86,9 @@ side :: Shape -> Vector3 -> Double
 side (Plain n d) p = (n ^. p) + d
 side (Sphere c r) p = norm (p ^- c) - r
 
-distance :: Shape -> Ray -> [Distance]
+frontObjects :: Double -> Shape -> Ray -> [PreDistance]
+frontObjects err shp ray = [x | x <- (distance shp ray), isFront err x]
+distance :: Shape -> Ray -> [PreDistance]
 distance shp@(Plain n d) (Ray pos dir)
   | cos == 0  = []
   | otherwise = [((d + n ^. pos) / (-cos), shp, io)]
@@ -80,21 +101,20 @@ distance shp@(Sphere c r) (Ray pos dir)
         t0 = o ^. dir
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
+isFront :: Double -> PreDistance -> Bool
+isFront err (t, shp, io) = t >= err
 
-dist :: Distance -> Double
-dist (t, shp, io) = t
+getNormal :: Shape -> Point3 -> Inout -> Direction3
+getNormal shp pt i = directNormal (getNormalShape shp pt) i
+getNormalShape :: Shape -> Point3 -> Direction3
+getNormalShape (Plain n d) pt = n
+getNormalShape (Sphere c r) pt = fromJust (normal (pt ^- c))
+directNormal :: Vector3 -> Inout -> Vector3
+directNormal n io
+  | io == Inside = n
+  | otherwise    = neg n
 
-distance' :: Shape -> Ray -> [Distance]
-distance' shp ray = [x | x <- (distance shp ray), dist x >= 0.02]
---distance' shp ray = [x | x <- (distance shp ray), dist x >= (-0.001)]
-
-getNormal :: Shape -> Vector3 -> Vector3
-getNormal (Plain n d) pt = n
-getNormal (Sphere c r) pt = fromJust (normal (pt ^- c))
-
-getNormal' :: Shape -> Vector3 -> Inout -> Vector3
-getNormal' shp pt i = directNormal (getNormal shp pt) i
-
+{-
 intersect' :: Shape -> Ray -> [(Ray, Inout)]
 intersect' s@(Plain n _) ray = [(Ray (target ray t) n, io) | (t, shp, io) <- distance s ray]
 intersect' s@(Sphere c _) ray = [(newray ray t c, io) | (t, shp, io) <- distance s ray]
@@ -102,8 +122,5 @@ intersect' s@(Sphere c _) ray = [(newray ray t c, io) | (t, shp, io) <- distance
 newray :: Ray -> Double -> Vector3 -> Ray
 newray ray t c = Ray is (is ^- c)
   where is = target ray t
+-}
 
-directNormal :: Vector3 -> Inout -> Vector3
-directNormal n io
-  | io == Inside = n
-  | otherwise    = neg n

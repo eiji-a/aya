@@ -1,5 +1,9 @@
 
-module Filter where
+module Filter
+  ( arrounds
+  , gaussian
+  , filterstep
+  ) where
 
 import Data.Array
 

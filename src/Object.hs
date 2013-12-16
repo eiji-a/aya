@@ -2,7 +2,25 @@
 -- OBJECT
 --
 
-module Object where
+module Object
+  ( Light(..)
+  , ldir
+  , lint
+  , Primitive(..)
+  , intersect
+  , Distance
+  , Intersection
+  , initIntersection
+  , ispt
+  , isn
+  , isedir
+  , iskr
+  , iskt
+  , isrray
+  , istray
+  , ismate1
+  , ismate2
+  ) where
 
 import Data.Maybe
 import Algebra
@@ -41,21 +59,20 @@ lint (ParallelLight _ i) = i
 -- intersection
 ---------------
 
-data Intersection' = Intersection' {
-    isdist  :: Double
-  , isshape :: Shape
-  , ismap   :: MapFunc
-  , isn'    :: Vector3
+data Distance = Distance {
+    dtdist  :: Double
+  , dtshape :: Shape
+  , dtmap   :: MapFunc
   , inout   :: Inout
   }
 
-instance Eq Intersection' where
-  (==) is is' = (isdist is) == (isdist is')
+instance Eq Distance where
+  (==) dt dt' = (dtdist dt) == (dtdist dt')
 
-instance Ord Intersection' where
-  compare is is'
-    | isdist is == isdist is' = EQ
-    | isdist is <= isdist is' = LT
+instance Ord Distance where
+  compare dt dt'
+    | dtdist dt == dtdist dt' = EQ
+    | dtdist dt <= dtdist dt' = LT
     | otherwise               = GT
 
 -- primitive
@@ -63,12 +80,12 @@ instance Ord Intersection' where
 
 data Primitive = Primitive Shape MapFunc
 
-intersect :: Primitive -> Ray -> [Intersection']
-intersect (Primitive shp mapf) ray = map mkIs' (distance' shp ray)
+intersect :: Primitive -> Ray -> [Distance]
+intersect (Primitive shp mapf) ray = map mkIs' (frontObjects 0.02 shp ray)
   where mkIs' = mkIs mapf
 
-mkIs :: MapFunc -> (Double, Shape, Inout) -> Intersection'
-mkIs mapf (t, shp, io) = Intersection' t shp mapf o3 io
+mkIs :: MapFunc -> PreDistance -> Distance
+mkIs mapf (t, shp, io) = Distance t shp mapf io
 
 data Intersection = Intersection
   { ismate1 :: Material
@@ -82,19 +99,19 @@ data Intersection = Intersection
   , iskt    :: Double
   } deriving Show
 
-initIntersection :: Maybe Intersection' -> Ray -> Material -> Material -> Intersection
-initIntersection is' ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray tray kr kt
-  where is = fromJust is'
-        pt = target ray (isdist is)
-        n  = getNormal' (isshape is) pt (inout is)
+initIntersection :: Maybe Distance -> Ray -> Material -> Material -> Intersection
+initIntersection dt ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray tray kr kt
+  where dt' = fromJust dt
+        pt = target ray (dtdist dt')
+        n  = getNormal (dtshape dt') pt (inout dt')
         cos1  = -(n ^. edir)
         edir = rdir ray
         rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
-        mate2 = selectMaterial is pt n mate0
+        mate2 = selectMaterial dt' pt n mate0
         (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
 
-selectMaterial :: Intersection' -> Vector3 -> Vector3 -> Material -> Material
-selectMaterial is pt n mate0
-  | inout is == Inside = (ismap is) pt
+selectMaterial :: Distance -> Vector3 -> Vector3 -> Material -> Material
+selectMaterial dt pt n mate0
+  | inout dt == Inside = (dtmap dt) pt
   | otherwise          = mate0
 
