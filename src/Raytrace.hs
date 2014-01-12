@@ -39,7 +39,7 @@ psearch prims ray
   where iss = concat [intersect x ray | x <- prims]
 
 brightnessDiff :: [Light] -> [Primitive] -> Intersection -> Intensity
-brightnessDiff lgts prims is = (mdiff $ ismate2 is) !** addLight lgts prims is
+brightnessDiff lgts prims is = (mdiff $ ismate is) !** addLight lgts prims is
 
 addLight :: [Light] -> [Primitive] -> Intersection -> Intensity
 addLight [] _ _ = intensityBlack
@@ -47,10 +47,12 @@ addLight (l:ls) prims is = (getLightIntensity l prims is) !+ (addLight ls prims 
 
 getLightIntensity :: Light -> [Primitive] -> Intersection -> Intensity
 getLightIntensity lgt prims is
-  | mis == Nothing = lintensity !+ hlgt
-  | otherwise      = intensityBlack
+  | mis == Nothing      = lintensity !+ hlgt
+  | dist * dist > decay = lintensity !+ hlgt
+  | otherwise           = intensityBlack
   where (ld, decay) = ldir lgt (ispt is)
         mis         = psearch prims $ fromJust $ initRay (ispt is) $ fromJust ld
+        dist        = dtdist $ fromJust mis
         lintensity  = (lint lgt) !* ((fromJust ld ^. isn is) / decay)
         hlgt        = (lint lgt) !* (calcHighlight is (fromJust ld))
 

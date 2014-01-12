@@ -9,6 +9,7 @@ module Object
   , Primitive(..)
   , intersect
   , Distance
+  , dtdist
   , Intersection
   , initIntersection
   , ispt
@@ -20,6 +21,7 @@ module Object
   , istray
   , ismate1
   , ismate2
+  , ismate
   ) where
 
 import Data.Maybe
@@ -43,9 +45,9 @@ ldir :: Light -> Vector3 -> LightDirection
 ldir (ParallelLight dir _) _ = (Just dir, 1.0)
 ldir (PointLight pos _) pt
   | len == 0  = (Nothing, 0)
-  | otherwise = (ldir ^/ len, len2)
-  where ldir = pos ^- pt
-        len2 = square ldir
+  | otherwise = (ld ^/ len, len2)
+  where ld = pos ^- pt
+        len2 = square ld
         len = sqrt len2
 
 lint :: Light -> Intensity
@@ -90,6 +92,7 @@ mkIs mapf (t, shp, io) = Distance t shp mapf io
 data Intersection = Intersection
   { ismate1 :: Material
   , ismate2 :: Material
+  , ismate  :: Material
   , ispt    :: Vector3
   , isn     :: Vector3
   , isedir  :: Vector3
@@ -100,18 +103,14 @@ data Intersection = Intersection
   } deriving Show
 
 initIntersection :: Maybe Distance -> Ray -> Material -> Material -> Intersection
-initIntersection dt ray mate0 mate1 = Intersection mate1 mate2 pt n edir rray tray kr kt
+initIntersection dt ray mate0 mate1 = Intersection mate1 mate2 mateT pt n edir rray tray kr kt
   where dt' = fromJust dt
         pt = target ray (dtdist dt')
         n  = getNormal (dtshape dt') pt (inout dt')
         cos1  = -(n ^. edir)
         edir = rdir ray
         rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
-        mate2 = selectMaterial dt' pt n mate0
+        mateT = (dtmap dt') pt
+        mate2 = if (inout dt') == Inside then mateT else mate0
         (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
-
-selectMaterial :: Distance -> Vector3 -> Vector3 -> Material -> Material
-selectMaterial dt pt n mate0
-  | inout dt == Inside = (dtmap dt) pt
-  | otherwise          = mate0
 

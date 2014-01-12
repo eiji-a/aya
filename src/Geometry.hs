@@ -12,9 +12,16 @@ module Geometry
   , Shape
   , initPlain
   , initSphere
+  , initPolygon
+  , poly_v
+  , poly_e1
+  , poly_e2
+  , poly_n
   , CsgOpe(..)
   , PreDistance
   , frontObjects
+  , distance
+  , side
   , getNormal
   )  where
 
@@ -57,19 +64,29 @@ target (Ray pos dir) t = pos ^+ (dir ^* t)
 -----------------------------------------------------------
 
 
-data Shape = Plain Vector3 Double
-           | Sphere Vector3 Double
+data Shape = Plain Direction3 Double
+           | Sphere Point3 Double
+           | Polygon {
+               poly_v  :: Point3
+             , poly_e1 :: Point3
+             , poly_e2 :: Point3
+             , poly_n  :: Point3
+             }
            | Csg CsgOpe Shape Shape
-data CsgOpe = CsgOr | CsgAnd | CsgXor deriving Eq
+data CsgOpe = CsgOr | CsgAnd | CsgSub | CsgXor deriving Eq
 type PreDistance = (Double, Shape, Inout)
 
 instance Eq Shape where
   (==) (Plain n1 d1) (Plain n2 d2) = (n1 == n2) && (d1 == d2)
   (==) (Sphere c1 r1) (Sphere c2 r2) = (c1 == c2) && (r1 == r2)
+  (==) (Polygon v e1 e2 n) (Polygon v' e1' e2' n') = (v == v') && (e1 == e1')
+                                                   && (e2 == e2') && (n == n')
 
 instance Show Shape where
   show (Plain n d) = "[" ++ (show n) ++ "," ++ (show d) ++ "]"
   show (Sphere c r) = "[" ++ show c ++ "," ++ show r ++ "]"
+  show (Polygon v e1 e2 n) = "[" ++ show v ++ "," ++ show e1 ++ ","
+                           ++ show e2 ++ "," ++ show n ++ "]"
 
 initPlain :: Vector3 -> Double -> Maybe Shape
 initPlain n d
@@ -82,9 +99,20 @@ initSphere c r
   | r <= 0    = Nothing
   | otherwise = Just (Sphere c r)
 
-side :: Shape -> Vector3 -> Double
+initPolygon :: Point3 -> Point3 -> Point3 -> Maybe Shape
+initPolygon v0 v1 v2
+  | e1 == o3  = Nothing
+  | e2 == o3  = Nothing
+  | n  == o3  = Nothing
+  | otherwise = Just (Polygon v0 e1 e2 n)
+  where e1 = v1 ^- v0
+        e2 = v2 ^- v0
+        n = e1 ^** e2
+
+side :: Shape -> Point3 -> Double
 side (Plain n d) p = (n ^. p) + d
 side (Sphere c r) p = norm (p ^- c) - r
+side (Polygon v e1 e2 n) p = n ^. (p ^- v)
 
 frontObjects :: Double -> Shape -> Ray -> [PreDistance]
 frontObjects err shp ray = [x | x <- (distance shp ray), isFront err x]
@@ -101,6 +129,19 @@ distance shp@(Sphere c r) (Ray pos dir)
         t0 = o ^. dir
         t1 = r * r - (square o - (t0 * t0))
         t2 = sqrt t1
+distance shp@(Polygon v e1 e2 n) (Ray pos dir)
+  | det  == 0    = []
+  | beta  < 0 = []
+  | gamma < 0 = []
+  | beta + gamma > 1 = []
+  | otherwise = [(t, shp, io)]
+  where det   = -(n ^. dir)
+        r     = pos ^- v
+        t     = (n ^. r) / det
+        beta  = ((dir ^** e2) ^. r) / det
+        gamma = ((e1 ^** dir) ^. r) / det
+        io    = if det < 0 then Outside else Inside
+
 isFront :: Double -> PreDistance -> Bool
 isFront err (t, shp, io) = t >= err
 
@@ -109,6 +150,7 @@ getNormal shp pt i = directNormal (getNormalShape shp pt) i
 getNormalShape :: Shape -> Point3 -> Direction3
 getNormalShape (Plain n d) pt = n
 getNormalShape (Sphere c r) pt = fromJust (normal (pt ^- c))
+getNormalShape (Polygon v e1 e2 n) pt = fromJust $ normal n
 directNormal :: Vector3 -> Inout -> Vector3
 directNormal n io
   | io == Inside = n

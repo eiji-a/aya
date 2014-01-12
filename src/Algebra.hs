@@ -139,7 +139,7 @@ checkDirection vec
   | vec == Nothing = Nothing
   | otherwise      = normal $ fromJust vec
 
-ex3 = initDirection 1 0 0
-ey3 = initDirection 0 1 0
-ez3 = initDirection 0 0 1
+ex3 = fromJust $ initDirection 1 0 0
+ey3 = fromJust $ initDirection 0 1 0
+ez3 = fromJust $ initDirection 0 0 1
 
