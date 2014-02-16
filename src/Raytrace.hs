@@ -29,45 +29,51 @@ instance Raytrace Tracer where
     | otherwise      =  (brightnessDiff lgts prims is)
                      !+ (calcTrace Speculum     is tr (depth - 1))
                      !+ (calcTrace Transparence is tr (depth - 1))
-    where mis   = psearch prims ray
-          is    = initIntersection mis ray material0 mate
+    where
+      mis   = psearch prims ray
+      is    = initIntersection mis ray material0 mate
 
 psearch :: [Primitive] -> Ray -> Maybe Distance
 psearch prims ray
   | iss == [] = Nothing
   | otherwise = Just (minimum iss)
-  where iss = concat [intersect x ray | x <- prims]
+  where
+    iss = concat [intersect x ray | x <- prims]
 
 brightnessDiff :: [Light] -> [Primitive] -> Intersection -> Intensity
 brightnessDiff lgts prims is = (mdiff $ ismate is) !** addLight lgts prims is
 
 addLight :: [Light] -> [Primitive] -> Intersection -> Intensity
 addLight [] _ _ = intensityBlack
-addLight (l:ls) prims is = (getLightIntensity l prims is) !+ (addLight ls prims is)
+addLight (l:ls) prims is = (getLightIntensity l prims is)
+                         !+ (addLight ls prims is)
 
 getLightIntensity :: Light -> [Primitive] -> Intersection -> Intensity
 getLightIntensity lgt prims is
   | mis == Nothing      = lintensity !+ hlgt
   | dist * dist > decay = lintensity !+ hlgt
   | otherwise           = intensityBlack
-  where (ld, decay) = ldir lgt (ispt is)
-        mis         = psearch prims $ fromJust $ initRay (ispt is) $ fromJust ld
-        dist        = dtdist $ fromJust mis
-        lintensity  = (lint lgt) !* ((fromJust ld ^. isn is) / decay)
-        hlgt        = (lint lgt) !* (calcHighlight is (fromJust ld))
+  where
+    (ld, decay) = ldir lgt (ispt is)
+    mis         = psearch prims $ fromJust $ initRay (ispt is) $ fromJust ld
+    dist        = dtdist $ fromJust mis
+    lintensity  = (lint lgt) !* ((fromJust ld ^. isn is) / decay)
+    hlgt        = (lint lgt) !* (calcHighlight is (fromJust ld))
 
 calcHighlight :: Intersection -> Vector3 -> Double
 calcHighlight is ld
   | hvec == Nothing = 0
-  | otherwise       = (fromJust hvec ^. (isn is)) ^ 200
-  where hvec = normal (ld ^- (isedir is))
+  | otherwise       = (fromJust hvec ^. (isn is)) ^ 100
+  where
+    hvec = normal (ld ^- (isedir is))
 
 calcTrace :: TraceDirection -> Intersection -> Tracer -> Int -> Intensity
 calcTrace td is tr depth
   | kp  == 0.0     = intensityBlack
   | ray == Nothing = intensityBlack
   | otherwise      = (trace tr ray mate depth) !** (mcolor !* kp)
-  where (kp, ray, mate, mcolor) = getTraceParam td is
+  where
+    (kp, ray, mate, mcolor) = getTraceParam td is
 
 getTraceParam :: TraceDirection -> Intersection -> (Double, Maybe Ray, Material, Intensity)
 getTraceParam td is

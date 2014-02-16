@@ -1,0 +1,97 @@
+--
+-- SCENE
+--
+
+module Scene
+  ( smooth
+  , iclip
+  , traceDepth
+  , xReso
+  , yReso
+  , xRegion
+  , yRegion
+  , eyepos
+  , etarget
+  , upper
+  , focus
+  , material0
+  , iAmb
+  , lights
+  , primitives
+  ) where
+
+import Data.Maybe
+
+import Algebra
+import Geometry
+import Physics
+import Object
+import Mapping
+
+-- global parameters
+
+smooth = True
+iclip = 120 :: Double
+
+traceDepth = 6 :: Int
+
+xReso = 256 :: Int
+yReso = 256 :: Int
+
+xRegion = (-1.0, 1.0)
+yRegion = (-1.0, 1.0)
+
+eyepos = Vector3 0 0 (-30)
+etarget = Vector3 0 0 0
+upper = Vector3 0 1 0
+focus = 2.0
+
+
+material0 = Material intensityBlack intensityBlack (initIntensity 1 1 1 1) intensityBlack 0 1.0
+
+iAmb = initIntensity 1 1 1 100
+
+-- lights and primitives
+
+lights :: [Light]
+lights =
+  [ 
+    PointLight (Vector3 0 5.95 (-7.5)) (initIntensity 1 1 1 10000)
+  ]
+
+primitives :: [Primitive]
+primitives =
+  [ Primitive (fromJust $ initPlain ey3 6) mfloor
+  , Primitive (fromJust $ initPlain (neg ey3) 6) mfloor
+  , Primitive (fromJust $ initPlain (neg ez3) 0) mfloor
+  , Primitive (fromJust $ initPlain ex3 8) mrwall
+  , Primitive (fromJust $ initPlain (neg ex3) 8) mbwall
+  , Primitive (fromJust $ initSphere (Vector3 (-3.5) (-3.5) (-5)) 2.5) mmirr
+  , Primitive (fromJust $ initSphere (Vector3 (3.5) (-3.5) (-10)) 2.5) mtrans
+  ]
+
+-----
+-- details of primitives
+-----
+
+floor1 = Material (initIntensity 1 1 1 1) intensityBlack intensityBlack intensityBlack 0 0
+floor2 = Material (initIntensity 1.0 0.4 0.4 1) intensityBlack intensityBlack intensityBlack 0 0
+floor3 = Material (initIntensity 0.4 0.4 1 1) intensityBlack intensityBlack intensityBlack 0 0
+ball1 =  Material intensityBlack intensityWhite intensityBlack intensityBlack 0 0
+ball2 =  Material intensityBlack intensityWhite intensityWhite intensityBlack 0 1.51
+
+mfloor = mapUni floor1
+mrwall = mapUni floor2
+mbwall = mapUni floor3
+mmirr = mapUni ball1
+mtrans = mapUni ball2
+
+-- Tetrapot --
+tp1 = Vector3 (-1) 0 (-1)
+tp2 = Vector3 1 0 (-1)
+tp3 = Vector3 1 0 1
+tp4 = Vector3 (-1) 0 1
+tp5 = Vector3 0 1.4142 0
+tp6 = Vector3 0 (-1.4142) 0
+
+

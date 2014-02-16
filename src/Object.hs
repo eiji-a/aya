@@ -46,9 +46,10 @@ ldir (ParallelLight dir _) _ = (Just dir, 1.0)
 ldir (PointLight pos _) pt
   | len == 0  = (Nothing, 0)
   | otherwise = (ld ^/ len, len2)
-  where ld = pos ^- pt
-        len2 = square ld
-        len = sqrt len2
+  where
+    ld = pos ^- pt
+    len2 = square ld
+    len = sqrt len2
 
 lint :: Light -> Intensity
 lint (PointLight _ i) = i
@@ -84,7 +85,8 @@ data Primitive = Primitive Shape MapFunc
 
 intersect :: Primitive -> Ray -> [Distance]
 intersect (Primitive shp mapf) ray = map mkIs' (frontObjects 0.02 shp ray)
-  where mkIs' = mkIs mapf
+  where
+    mkIs' = mkIs mapf
 
 mkIs :: MapFunc -> PreDistance -> Distance
 mkIs mapf (t, shp, io) = Distance t shp mapf io
@@ -104,13 +106,14 @@ data Intersection = Intersection
 
 initIntersection :: Maybe Distance -> Ray -> Material -> Material -> Intersection
 initIntersection dt ray mate0 mate1 = Intersection mate1 mate2 mateT pt n edir rray tray kr kt
-  where dt' = fromJust dt
-        pt = target ray (dtdist dt')
-        n  = getNormal (dtshape dt') pt (inout dt')
-        cos1  = -(n ^. edir)
-        edir = rdir ray
-        rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
-        mateT = (dtmap dt') pt
-        mate2 = if (inout dt') == Inside then mateT else mate0
-        (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
+  where
+    dt' = fromJust dt
+    pt = target ray (dtdist dt')
+    n  = getNormal (dtshape dt') pt (inout dt')
+    cos1  = -(n ^. edir)
+    edir = rdir ray
+    rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
+    mateT = (dtmap dt') pt
+    mate2 = if (inout dt') == Inside then mateT else mate0
+    (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
 

@@ -31,7 +31,8 @@ mapCheckXZ :: Material -> Material -> Double -> Vector3 -> Material
 mapCheckXZ mate1 mate2 sc (Vector3 px py pz)
   | even (xmod + zmod) = mate1
   | otherwise          = mate2
-  where xmod = floor (px / sc)
-        zmod = floor (pz / sc)
+  where
+    xmod = floor (px / sc)
+    zmod = floor (pz / sc)
 
 

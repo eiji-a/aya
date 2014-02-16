@@ -33,10 +33,10 @@ import Mapping
 smooth = True
 iclip = 120 :: Double
 
-traceDepth = 6 :: Int
+traceDepth = 10 :: Int
 
-xReso = 256 :: Int
-yReso = 256 :: Int
+xReso = 512 :: Int
+yReso = 512 :: Int
 
 xRegion = (-1.0, 1.0)
 yRegion = (-1.0, 1.0)

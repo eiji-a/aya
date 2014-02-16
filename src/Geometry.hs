@@ -55,7 +55,8 @@ initRay :: Point3 -> Direction3 -> Maybe Ray
 initRay pos dir
   | ndir == Nothing  = Nothing
   | otherwise        = Just $ Ray pos $ fromJust ndir
-  where ndir = normal dir
+  where
+    ndir = normal dir
 
 target :: Ray -> Double -> Vector3
 target (Ray pos dir) t = pos ^+ (dir ^* t)
@@ -92,7 +93,8 @@ initPlain :: Vector3 -> Double -> Maybe Shape
 initPlain n d
   | n == o3   = Nothing
   | otherwise = Just (Plain nnormal d)
-  where nnormal = fromJust $ normal n
+  where
+    nnormal = fromJust $ normal n
 
 initSphere :: Vector3 -> Double -> Maybe Shape
 initSphere c r
@@ -105,9 +107,10 @@ initPolygon v0 v1 v2
   | e2 == o3  = Nothing
   | n  == o3  = Nothing
   | otherwise = Just (Polygon v0 e1 e2 n)
-  where e1 = v1 ^- v0
-        e2 = v2 ^- v0
-        n = e1 ^** e2
+  where
+    e1 = v1 ^- v0
+    e2 = v2 ^- v0
+    n = e1 ^** e2
 
 side :: Shape -> Point3 -> Double
 side (Plain n d) p = (n ^. p) + d
@@ -120,27 +123,30 @@ distance :: Shape -> Ray -> [PreDistance]
 distance shp@(Plain n d) (Ray pos dir)
   | cos == 0  = []
   | otherwise = [((d + n ^. pos) / (-cos), shp, io)]
-  where cos = n ^. dir
-        io  = if cos < 0 then Inside else Outside
+  where
+    cos = n ^. dir
+    io  = if cos < 0 then Inside else Outside
 distance shp@(Sphere c r) (Ray pos dir)
   | t1 <= 0.0 = []
   | t1 >  0.0 = [(t0 - t2, shp, Inside), (t0 + t2, shp, Outside)]
-  where o = c ^- pos
-        t0 = o ^. dir
-        t1 = r * r - (square o - (t0 * t0))
-        t2 = sqrt t1
+  where
+    o = c ^- pos
+    t0 = o ^. dir
+    t1 = r * r - (square o - (t0 * t0))
+    t2 = sqrt t1
 distance shp@(Polygon v e1 e2 n) (Ray pos dir)
   | det  == 0    = []
   | beta  < 0 = []
   | gamma < 0 = []
   | beta + gamma > 1 = []
   | otherwise = [(t, shp, io)]
-  where det   = -(n ^. dir)
-        r     = pos ^- v
-        t     = (n ^. r) / det
-        beta  = ((dir ^** e2) ^. r) / det
-        gamma = ((e1 ^** dir) ^. r) / det
-        io    = if det < 0 then Outside else Inside
+  where
+    det   = -(n ^. dir)
+    r     = pos ^- v
+    t     = (n ^. r) / det
+    beta  = ((dir ^** e2) ^. r) / det
+    gamma = ((e1 ^** dir) ^. r) / det
+    io    = if det < 0 then Outside else Inside
 
 isFront :: Double -> PreDistance -> Bool
 isFront err (t, shp, io) = t >= err

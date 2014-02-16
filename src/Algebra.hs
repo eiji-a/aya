@@ -1,5 +1,5 @@
 --
---
+-- ALGEBLA
 --
 
 module Algebra
@@ -77,7 +77,8 @@ instance Vector Vector2 where
   normal a
     | mag == 0  = Nothing
     | otherwise = a ^/ mag
-    where mag = norm a
+    where
+      mag = norm a
   square a = a ^. a
 
 o2  = Vector2 0 0
@@ -110,7 +111,8 @@ instance Vector Vector3 where
   normal a
     | mag == 0  = Nothing
     | otherwise = a ^/ mag
-    where mag = norm a
+    where
+      mag = norm a
   square a = a ^. a
 
 (^**) :: Vector3 -> Vector3 -> Vector3

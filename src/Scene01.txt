@@ -64,41 +64,33 @@ lights =
 primitives :: [Primitive]
 primitives =
   [ Primitive (fromJust $ initPlain (Vector3 0 1 0) 2) mfloor
-  , Primitive (fromJust $ initPlain (Vector3 0 (-1) 0) (50)) msky1
---  , Primitive (fromJust $ initSphere (Vector3 (-0.5) (-0.5) 3.2) 1) mball1
-  , Primitive (fromJust $ initSphere (Vector3 (-2) 0 2) 1) mball2
-  , Primitive (fromJust $ initPolygon tp0 tp3 tp1) mtrans
-  , Primitive (fromJust $ initPolygon tp0 tp3 tp2) mtrans
-  , Primitive (fromJust $ initPolygon tp2 tp3 tp1) mtrans
-  , Primitive (fromJust $ initPolygon tp0 tp2 tp1) mtest
---  , Primitive (fromJust $ initPolygon (Vector3 0.5 (-1) 0) (Vector3 0 (-0.5) 0) (Vector3 0 (-1) 0.5)) mtest
---  , Primitive (fromJust $ initPolygon (Vector3 0 (-1) 0.5) (Vector3 0 (-0.5) 0) (Vector3 (-0.5) (-1) 0)) mtest
---  , Primitive (fromJust $ initPolygon (Vector3 0 1 0) (Vector3 0.5 (-1) 0) (Vector3 (-0.5) (-1) 0)) mtrans
---  , Primitive (fromJust $ initPolygon (Vector3 0 1 0.3) (Vector3 (-0.5) (-1) 0.3) (Vector3 0.5 (-1) 0.3)) mtrans
+  , Primitive (fromJust $ initPolygon tp1 tp5 tp2) mtrans
+  , Primitive (fromJust $ initPolygon tp2 tp5 tp3) mtrans
+  , Primitive (fromJust $ initPolygon tp3 tp5 tp4) mtrans
+  , Primitive (fromJust $ initPolygon tp4 tp5 tp1) mtrans
+  , Primitive (fromJust $ initPolygon tp1 tp2 tp6) mtrans
+  , Primitive (fromJust $ initPolygon tp2 tp3 tp6) mtrans
+  , Primitive (fromJust $ initPolygon tp3 tp4 tp6) mtrans
+  , Primitive (fromJust $ initPolygon tp4 tp1 tp6) mtrans
   ]
 
 -----
 -- details of primitives
 -----
 
-sky1 = Material (initIntensity 0.7 0.9 1 1) intensityBlack intensityBlack intensityBlack 0 0
 floor1 = Material (initIntensity 1 0.6 0  1) (initIntensity 0.5 0.5 0.5 1) intensityBlack intensityBlack 0 0
 floor2 = Material (initIntensity 1.0 1.0 0.6 1) (initIntensity 1 1 1 1) intensityBlack intensityBlack 0 0
-ball1 =  Material (initIntensity 1 0.5 0.3 1) (initIntensity 0.5 1.0 0.8 1) intensityBlack intensityBlack 0 0.0
 ball2 =  Material intensityBlack intensityWhite intensityWhite intensityBlack 0 1.51
-mirr1 =  Material intensityBlack intensityWhite intensityBlack intensityBlack 0 0
-msam1 =  Material (initIntensity 0 1 1 0.2) intensityWhite intensityWhite intensityBlack 0 1.51
 
-msky1  = mapUni sky1
 mfloor = mapCheckXZ floor1 floor2 1
-mball1 = mapUni ball1
-mball2 = mapUni ball2
 mtrans = mapUni ball2
-mtest  = mapUni msam1
 
 -- Tetrapot --
-tp0 = Vector3 0 0 0
-tp1 = Vector3 1 0 1
-tp2 = Vector3 1 1 0
-tp3 = Vector3 0 1 1
+tp1 = Vector3 (-1) 0 (-1)
+tp2 = Vector3 1 0 (-1)
+tp3 = Vector3 1 0 1
+tp4 = Vector3 (-1) 0 1
+tp5 = Vector3 0 1.4142 0
+tp6 = Vector3 0 (-1.4142) 0
+
 
