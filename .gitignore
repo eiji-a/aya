@@ -6,9 +6,6 @@ cabal-dev
 *.chs.h
 *~
 .virthualenv
-aya.*
-aya
-
 .DS_Store
 
 src/Main
