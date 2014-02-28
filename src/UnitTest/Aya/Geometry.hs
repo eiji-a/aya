@@ -1,18 +1,27 @@
+--
+-- Geometry: tests of Geometry module
+--
 
-module TestGeometry where
+module UnitTest.Aya.Geometry where
+
+import Test.Framework (defaultMain, testGroup)
+import Test.Framework.Providers.HUnit
+import Test.Framework.Providers.QuickCheck
+import Test.HUnit
+import Test.QuickCheck
 
 import Data.Maybe
-import Test.HUnit
-import Algebra
-import Geometry
 
-main = do
-  runTestTT $ test suite
-  return ()
+import Aya.Algebra
+import Aya.Geometry
 
-suite :: [Test]
-suite =
-  [ "Plain" ~: testPlain
+main :: IO ()
+main = defaultMain testSuite
+
+testSuite = hUnitTestToTests $ tests
+
+tests = "Aya Geometry" ~: [
+    "Plain" ~: testPlain
   , "Sphere" ~: testSphere
   , "Polygon" ~: testPolygon
   , "Ray" ~: testRay
@@ -22,9 +31,8 @@ suite =
 -- Plain
 --
 
-testPlain :: [Test]
-testPlain =
-  [ show p1 ~=? "Just [[0.0,1.0,0.0],1.0]"
+testPlain = test [
+    show p1 ~=? "Just [[0.0,1.0,0.0],1.0]"
   , show p2 ~=? "Just [[" ++ (show rt13) ++ "," ++ (show rt13) ++ "," ++ (show rt13) ++ "],-10.0]"
   , distance (fromJust p1) (fromJust rp1) ~=? []
   , distance (fromJust p1) (fromJust rp2) ~=? [(sqrt 2, fromJust p1, Inside)]
@@ -43,9 +51,8 @@ testPlain =
 -- Sphere
 --
 
-testSphere :: [Test]
-testSphere =
-  [ show s1 ~=? "Just [[0.0,0.0,0.0],1.0]"
+testSphere = test [
+    show s1 ~=? "Just [[0.0,0.0,0.0],1.0]"
   , show s2 ~=? "Just [[1.0,1.0,1.0],10.0]"
   , show s3 ~=? "Nothing"
   , side (fromJust s1) (Vector3 2 0 0) ~=? 1.0
@@ -61,9 +68,8 @@ testSphere =
 -- Polygon
 --
 
-testPolygon :: [Test]
-testPolygon =
-  [ p1 ~=? Nothing
+testPolygon = test [
+    p1 ~=? Nothing
   , p2 ~=? Nothing
   , p3 ~=? Nothing
   , p4 ~=? Nothing
@@ -111,9 +117,8 @@ testPolygon =
 -- Ray
 --
 
-testRay :: [Test]
-testRay =
-  [ show r1 ~=? "Just (Ray {rpos = [0.0,0.0,0.0], rdir = [1.0,0.0,0.0]})"
+testRay = test [
+    show r1 ~=? "Just (Ray {rpos = [0.0,0.0,0.0], rdir = [1.0,0.0,0.0]})"
   ]
   where r1 = initRay o3 ex3
 

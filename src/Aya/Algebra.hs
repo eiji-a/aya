@@ -1,8 +1,8 @@
 --
--- ALGEBLA
+-- Algebra:
 --
 
-module Algebra
+module Aya.Algebra
   ( (^+)
   , (^-)
   , (^*)

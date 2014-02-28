@@ -1,15 +1,15 @@
 --
--- MAPPING
+-- Mapping:
 --
 
-module Mapping
+module Aya.Mapping
   ( MapFunc
   , mapCheckXZ
   , mapUni
   ) where
 
-import Algebra
-import Physics
+import Aya.Algebra
+import Aya.Physics
 
 
 -- types

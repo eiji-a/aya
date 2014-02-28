@@ -5,7 +5,7 @@
 import System.Environment (getArgs)
 import Test.Framework
 
-import qualified UnitTest.Sudoku as Sudoku (testSuite)
+import qualified UnitTest.Aya as Aya (testSuite)
 
 main :: IO ()
 main = runTests
@@ -18,7 +18,7 @@ runTests =
 
 testSuite :: [Test]
 testSuite = foldl (++) [] [
-    Sudoku.testSuite
+    Aya.testSuite
   ]
 
 

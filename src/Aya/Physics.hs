@@ -1,8 +1,8 @@
 --
--- PHYSICS
+-- Physics:
 --
 
-module Physics
+module Aya.Physics
   ( Rgb(..)
   , toRgb
   , imageToStr
@@ -20,8 +20,8 @@ module Physics
 
 import Data.Maybe
 
-import Algebra
-import Geometry
+import Aya.Algebra
+import Aya.Geometry
 
 -- RGB
 ------

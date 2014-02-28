@@ -1,8 +1,8 @@
 --
--- SCENE
+-- Scene
 --
 
-module Scene
+module Aya.Scene
   ( smooth
   , iclip
   , traceDepth
@@ -22,11 +22,11 @@ module Scene
 
 import Data.Maybe
 
-import Algebra
-import Geometry
-import Physics
-import Object
-import Mapping
+import Aya.Algebra
+import Aya.Geometry
+import Aya.Mapping
+import Aya.Object
+import Aya.Physics
 
 -- global parameters
 

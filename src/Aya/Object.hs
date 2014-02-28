@@ -1,8 +1,8 @@
 --
--- OBJECT
+-- Object:
 --
 
-module Object
+module Aya.Object
   ( Light(..)
   , ldir
   , lint
@@ -25,10 +25,11 @@ module Object
   ) where
 
 import Data.Maybe
-import Algebra
-import Geometry
-import Physics
-import Mapping
+
+import Aya.Algebra
+import Aya.Geometry
+import Aya.Physics
+import Aya.Mapping
 
 --
 -- light

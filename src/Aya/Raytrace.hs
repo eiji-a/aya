@@ -1,19 +1,19 @@
 --
--- RAYTRACE
+-- Raytrace:
 --
 
-module Raytrace
+module Aya.Raytrace
   ( Tracer(..)
   , trace
   ) where
 
 import Data.Maybe
 
-import Algebra
-import Geometry
-import Physics
-import Object
-import Scene
+import Aya.Algebra
+import Aya.Geometry
+import Aya.Physics
+import Aya.Object
+import Aya.Scene
 
 class Raytrace a where
   trace :: a -> Maybe Ray -> Material -> Int -> Intensity

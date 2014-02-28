@@ -1,6 +1,8 @@
+--
+-- Main: mainroutine of Aya
+--
 
-
-module Main(
+module Main (
   main
 ) where
 
@@ -10,13 +12,13 @@ import Data.List
 import Data.Array
 import qualified Data.Map as Map
 
-import Algebra
-import Geometry
-import Physics
-import Raytrace
-import Filter
-import Scene
-import InitWorld
+import Aya.Algebra
+import Aya.Geometry
+import Aya.Physics
+import Aya.Raytrace
+import Aya.Filter
+import Aya.Scene
+import Aya.InitWorld
 
 main = do
   writeFile "aya.ppm" (header ++ imageToStr (smoothen image))

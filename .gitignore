@@ -7,11 +7,13 @@ cabal-dev
 *~
 .virthualenv
 aya.*
+aya
 
 .DS_Store
 
 src/Main
 
 *.png
+*.ppm
+*.pdf
 
-*.png

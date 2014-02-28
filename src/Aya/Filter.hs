@@ -1,5 +1,8 @@
+--
+-- Filter:
+--
 
-module Filter
+module Aya.Filter
   ( arrounds
   , gaussian
   , filterstep

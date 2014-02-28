@@ -1,8 +1,8 @@
 --
--- GEOMETRY
+-- Geometry:
 --
 
-module Geometry
+module Aya.Geometry
   ( Inout(..)
   , Ray
   , rpos
@@ -26,7 +26,8 @@ module Geometry
   )  where
 
 import Data.Maybe
-import Algebra
+
+import Aya.Algebra
 
 -- inside/outside
 -----------------------------------------------------------

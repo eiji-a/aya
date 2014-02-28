@@ -1,17 +1,23 @@
 --
--- InitWorld
+-- InitWorld:
 --
 
-module InitWorld
+module Aya.InitWorld
   ( generateRay
   , offsetXy'
+  , eyedir
+  , eex
+  , eey
+  , stepx
+  , stepy
+  , origin
   ) where
 
 import Data.Maybe
 
-import Algebra
-import Geometry
-import Scene
+import Aya.Algebra
+import Aya.Geometry
+import Aya.Scene
 
 -- automatic caluculation
 
