@@ -1,3 +1,5 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+
 --
 -- Object:
 --
@@ -6,10 +8,12 @@ module Aya.Object
   ( Light(..)
   , ldir
   , lint
+  , isLight
   , Primitive(..)
   , intersect
   , Distance
   , dtdist
+  , dtshape
   , Intersection
   , initIntersection
   , ispt
@@ -25,36 +29,51 @@ module Aya.Object
   ) where
 
 import Data.Maybe
+import NumericPrelude
 
 import Aya.Algebra
+import Aya.Color
 import Aya.Geometry
-import Aya.Physics
 import Aya.Mapping
+import Aya.Material
 
 --
 -- light
 --
 
 data Light =
-    PointLight Vector3 Intensity
+    PointLight Vector3 Intensity Primitive
+  | DirectiveLight Vector3 Intensity Vector3 Primitive
   | ParallelLight Vector3 Intensity
-  deriving Show
 
 type LightDirection = (Maybe Vector3, Double)
 -- return: L vector and decay factor
 ldir :: Light -> Vector3 -> LightDirection
 ldir (ParallelLight dir _) _ = (Just dir, 1.0)
-ldir (PointLight pos _) pt
-  | len == 0  = (Nothing, 0)
-  | otherwise = (ld ^/ len, len2)
+ldir (PointLight pos _ _) pt = ldir' pos pt
+ldir (DirectiveLight pos _ _ _) pt = ldir' pos pt
+
+ldir' :: Vector3 -> Vector3 -> LightDirection
+ldir' pos pt
+  | len2 == 0 = (Nothing, 0)
+  | otherwise = (ld </> len, len2)
   where
-    ld = pos ^- pt
+    ld = pos - pt
     len2 = square ld
     len = sqrt len2
 
-lint :: Light -> Intensity
-lint (PointLight _ i) = i
-lint (ParallelLight _ i) = i
+lint :: Light -> Vector3 -> Intensity
+lint (ParallelLight _ i) _ = i
+lint (PointLight _ i _) _ = i
+lint (DirectiveLight _ i d _) ldir = i <*> cos
+  where
+    cos' = -(d <.> ldir)
+    cos  = if cos' < 0 then 0 else cos'
+
+isLight :: Light -> Shape -> Bool
+isLight (ParallelLight _ _) s = False
+isLight (PointLight _ _ (Primitive ls _)) s = (ls == s)
+isLight (DirectiveLight _ _ _ (Primitive ls _)) s = (ls == s)
 
 --
 -- Primitive
@@ -105,16 +124,18 @@ data Intersection = Intersection
   , iskt    :: Double
   } deriving Show
 
-initIntersection :: Maybe Distance -> Ray -> Material -> Material -> Intersection
-initIntersection dt ray mate0 mate1 = Intersection mate1 mate2 mateT pt n edir rray tray kr kt
+initIntersection :: Maybe Distance -> Ray -> Material -> Material
+                 -> Intersection
+initIntersection dt ray mate0 mate1 =
+    Intersection mate1 mate2 mateT pt n edir rray tray kr kt
   where
     dt' = fromJust dt
     pt = target ray (dtdist dt')
     n  = getNormal (dtshape dt') pt (inout dt')
-    cos1  = -(n ^. edir)
+    cos1  = -(n <.> edir)
     edir = rdir ray
-    rray = initRay pt ((n ^* (2 * cos1)) ^+ edir)
+    rray = initRay pt ((n <*> (2 * cos1)) + edir)
     mateT = (dtmap dt') pt
     mate2 = if (inout dt') == Inside then mateT else mate0
-    (tray, kr, kt) = fresnel pt edir n cos1 (refidx mate1) (refidx mate2)
+    (tray, kr, kt) = fresnel pt edir n cos1 (avgeta mate1) (avgeta mate2)
 

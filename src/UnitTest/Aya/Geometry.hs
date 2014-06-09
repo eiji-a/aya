@@ -1,3 +1,5 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+
 --
 -- Geometry: tests of Geometry module
 --
@@ -11,6 +13,7 @@ import Test.HUnit
 import Test.QuickCheck
 
 import Data.Maybe
+import NumericPrelude
 
 import Aya.Algebra
 import Aya.Geometry
@@ -38,11 +41,12 @@ testPlain = test [
   , distance (fromJust p1) (fromJust rp2) ~=? [(sqrt 2, fromJust p1, Inside)]
   , distance (fromJust p1) (fromJust rp3) ~=? [(-(sqrt 2), fromJust p1, Outside)]
   , getNormal (fromJust p1) (Vector3 0 (-1) 0) Inside ~=? ey3
-  , getNormal (fromJust p1) (Vector3 0 (-1) 0) Outside ~=? neg ey3
+  , getNormal (fromJust p1) (Vector3 0 (-1) 0) Outside ~=? negate ey3
   ]
   where p1 = initPlain (Vector3 0 1 0) 1
         p2 = initPlain (Vector3 1 1 1) (-10)
-        rt13 = 1.0 / sqrt 3.0
+        rt13 :: Double
+        rt13 = 1 / sqrt 3
         rp1 = initRay (Vector3 0 0 0) (Vector3 0 0 1)
         rp2 = initRay (Vector3 0 0 0) (Vector3 0 (-1) 1)
         rp3 = initRay (Vector3 0 0 0) (Vector3 0 1 1)
@@ -99,14 +103,14 @@ testPolygon = test [
   , getNormal p7 (Vector3 0 0 (-0.3)) Outside ~=? Vector3 0 1 0
   ]
   where p1 = initPolygon (Vector3 0 0 0) (Vector3 1 2 3) (Vector3 3 6 9)
-        p2 = initPolygon o3 (Vector3 1 2 3) (Vector3 3 6 9)
-        p3 = initPolygon (Vector3 1 2 3) o3 (Vector3 3 6 9)
-        p4 = initPolygon (Vector3 1 2 3) (Vector3 3 6 9) o3
+        p2 = initPolygon zero (Vector3 1 2 3) (Vector3 3 6 9)
+        p3 = initPolygon (Vector3 1 2 3) zero (Vector3 3 6 9)
+        p4 = initPolygon (Vector3 1 2 3) (Vector3 3 6 9) zero
         p5 = fromJust $ initPolygon (Vector3 1 1 1) (Vector3 3 1 5) (Vector3 4 1 2)
         d1 = distance p5 (fromJust (initRay (Vector3 2 2 2) ey3))
-        d2 = distance p5 (fromJust (initRay (Vector3 2 0 2) (neg ey3)))
-        d3 = distance p5 (fromJust (initRay (Vector3 1 2 1) (neg ey3)))
-        d4 = distance p5 (fromJust (initRay (Vector3 2 2 1) (neg ey3)))
+        d2 = distance p5 (fromJust (initRay (Vector3 2 0 2) (negate ey3)))
+        d3 = distance p5 (fromJust (initRay (Vector3 1 2 1) (negate ey3)))
+        d4 = distance p5 (fromJust (initRay (Vector3 2 2 1) (negate ey3)))
         d5 = distance p5 (fromJust (initRay (Vector3 4 2 5) (Vector3 (-2) (-1) (-3))))
         n1 = getNormal p5 (Vector3 1 1 1) Inside
         n2 = getNormal p5 (Vector3 2 2 2) Inside
@@ -120,5 +124,5 @@ testPolygon = test [
 testRay = test [
     show r1 ~=? "Just (Ray {rpos = [0.0,0.0,0.0], rdir = [1.0,0.0,0.0]})"
   ]
-  where r1 = initRay o3 ex3
+  where r1 = initRay zero ex3
 

@@ -1,10 +1,14 @@
+-- {-# LANGUAGE NoImplicitPrelude #-}
+
 --
--- Physics: tests of Physics module
+-- Material: tests of Material module
 --
 
-module UnitTest.Aya.Physics where
+module UnitTest.Aya.Material where
 
 import Data.Maybe
+-- import NumericPrelude
+
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck
@@ -13,14 +17,14 @@ import Test.QuickCheck
 
 import Aya.Algebra
 import Aya.Geometry
-import Aya.Physics
+import Aya.Material
 
 main :: IO ()
 main = defaultMain testSuite
 
 testSuite = hUnitTestToTests $ tests
 
-tests = "Aya Physics" ~: [
+tests = "Aya Material" ~: [
     "fresnel" ~: testFresnel
   ]
 
@@ -39,15 +43,15 @@ testFresnel = test [
   , kr4 ~=? 1
   , tray90 ~=? initRay ex3 (Vector3 0 (-1) 0)
   , abs (kt90 - 0.96) < 0.000000001 ~=? True
-  , abs ((rdir $ fromJust tray00) ^. ey3 - (-0.745356)) < 0.00000001 ~=? True
+  , abs ((rdir $ fromJust tray00) <.> ey3 - (-0.745356)) < 0.00000001 ~=? True
   , kt00 ~=? 0
   , tray'90 ~=? initRay ex3 (Vector3 0 (-1) 0)
   , abs (kt'90 - 0.96) < 0.000000001 ~=? True
   ]
   where
-    pt1 = o3
+    pt1 = zero
     edir = fromJust (normal (Vector3 1 (-1) 0))
-    cos1 = -(ey3 ^. edir)
+    cos1 = -(ey3 <.> edir)
     g1 = sqrt 7 / 2
     (tray1, kr1, kt1) = fresnel pt1 edir ey3 cos1 0 1.5
     (tray2, kr2, kt2) = fresnel pt1 edir ey3 cos1 1 0
@@ -55,11 +59,11 @@ testFresnel = test [
     (tray4, kr4, kt4) = fresnel pt1 edir ey3 cos1 1.5 1
     -- air -> glass (0 - 90)
     edir90 = Vector3 0 (-1) 0
-    (tray90, kr90, kt90) = fresnel ex3 edir90 ey3 (-ey3 ^. edir90) 1.0 1.5 -- 90
+    (tray90, kr90, kt90) = fresnel ex3 edir90 ey3 (-ey3 <.> edir90) 1.0 1.5 -- 90
     edir00 = Vector3 1 0 0
-    (tray00, kr00, kt00) = fresnel ex3 edir00 ey3 (-ey3 ^. edir00) 1.0 1.5 -- 90
+    (tray00, kr00, kt00) = fresnel ex3 edir00 ey3 (-ey3 <.> edir00) 1.0 1.5 -- 90
     -- glass -> air (0 - 90)
     edir'90 = Vector3 0 (-1) 0
-    (tray'90, kr'90, kt'90) = fresnel ex3 edir90 ey3 (-ey3 ^. edir90) 1.5 1.0 -- 90
+    (tray'90, kr'90, kt'90) = fresnel ex3 edir90 ey3 (-ey3 <.> edir90) 1.5 1.0 -- 90
 
 

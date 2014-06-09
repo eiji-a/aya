@@ -9,8 +9,7 @@ module Aya.Mapping
   ) where
 
 import Aya.Algebra
-import Aya.Physics
-
+import Aya.Material
 
 -- types
 
@@ -34,5 +33,4 @@ mapCheckXZ mate1 mate2 sc (Vector3 px py pz)
   where
     xmod = floor (px / sc)
     zmod = floor (pz / sc)
-
 

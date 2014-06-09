@@ -11,6 +11,7 @@ cabal-dev
 src/Main
 
 *.png
+*.jpg
 *.ppm
 *.pdf
 
