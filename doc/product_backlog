@@ -1,0 +1,36 @@
+PRODUCT BACKLOGS for Aya
+------------------------
+
+(UNSCHEDULED)
+
+* Perlin Noise support
+
+* Photon trace phase2 (general specular)
+
+* Photon map
+
+* modeling DSL and loader
+
+* quadric support
+
+* image mapping support
+
+* highlight (using photon map info)
+
+* sphere and plain light support
+
+* command line option
+  - output file
+
+* Color blending used by mapping with Perlin Noise
+
+* CSG support
+
+(UNDER SPRINT)
+
+2014-06-14: Photon trace phase1 (perfect specular)
+
+  - Photonの定義
+  - 
+
+(FINISHED)

@@ -40,11 +40,15 @@ generateRay (y, x) =
 offsetXy :: (Int, Int) -> (Int, Int) -> Int
 offsetXy (y, x) (dy, dx)
   | ofst < 0  = error "Offset is negative 1"
-  | otherwise = (y + dy) * xReso + (x + dx)
+  | otherwise = ofst
+  where
+    ofst = (y + dy) * xReso + (x + dx)
 
 offsetXy' :: (Int, Int) -> Int
 offsetXy' (y, x)
-  | ofst < 0 = error "Offset is negative 2"
-  | otherwise = y * xReso + x
+  | ofst < 0  = error "Offset is negative 2"
+  | otherwise = ofst
+  where
+    ofst = y * xReso + x
 
     

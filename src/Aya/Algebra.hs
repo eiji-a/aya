@@ -36,7 +36,7 @@ import qualified Algebra.Additive as Additive
 class Scalable a where
   (<*>) :: a -> Double -> a
   (</>) :: a -> Double -> Maybe a
-  a </> s
+  (</>) a s
     | s == 0    = Nothing
     | otherwise = Just (a <*> (1 / s))
 
@@ -72,7 +72,7 @@ instance Additive.C Vector2 where
   negate (Vector2 ax ay) = Vector2 (-ax) (-ay)
 
 instance Scalable Vector2 where
-  (<+>) (Vector2 ax ay) s = Vector2 (ax * s) (ay * s)
+  (<*>) (Vector2 ax ay) s = Vector2 (ax * s) (ay * s)
 
 instance Matrix Vector2 where
   norm a = sqrt (square a)
@@ -105,7 +105,7 @@ instance Additive.C Vector3 where
   negate (Vector3 ax ay az) = Vector3 (-ax) (-ay) (-az)
 
 instance Scalable Vector3 where
-  (<*> (Vector3 ax ay az) s = Vector3 (ax * s) (ay * s) (az * s)
+  (<*>) (Vector3 ax ay az) s = Vector3 (ax * s) (ay * s) (az * s)
 
 instance Matrix Vector3 where
   norm a = sqrt (square a)

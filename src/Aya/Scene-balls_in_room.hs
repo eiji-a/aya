@@ -1,3 +1,5 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+
 --
 -- SCENE
 --
@@ -21,6 +23,7 @@ module Aya.Scene
   ) where
 
 import Data.Maybe
+import NumericPrelude
 
 import Aya.Algebra
 import Aya.Color
@@ -58,7 +61,18 @@ lights :: [Light]
 lights =
   [ 
     -- PointLight (Vector3 0 5.95 (-10)) (initIntensity colorWhite 5000) lp1
-    DirectiveLight (Vector3 0 7.95 (-12)) (initIntensity colorWhite 8000) (neg ey3) lp1
+    DirectiveLight (Vector3 0 7.95 (-10)) (initIntensity colorWhite 10000)
+                   (negate ey3) lp1
+{-
+  , DirectiveLight (Vector3 (-1.5) 7.95 (-9)) (initIntensity colorWhite 2500)
+                   (negate ey3) lp1
+  , DirectiveLight (Vector3 (-1.5) 7.95 (-11)) (initIntensity colorWhite 2500)
+                   (negate ey3) lp1
+  , DirectiveLight (Vector3 1.5 7.95 (-9)) (initIntensity colorWhite 2500)
+                   (negate ey3) lp1
+  , DirectiveLight (Vector3 1.5 7.95 (-11)) (initIntensity colorWhite 2500)
+                   (negate ey3) lp1
+-}
   ]
 
 lp1 = Primitive (fromJust $ initPolygon lpt1 lpt2 lpt3) mplight
@@ -68,10 +82,10 @@ primitives =
   [ lp1
   , Primitive (fromJust $ initPolygon lpt3 lpt4 lpt1) mplight
   , Primitive (fromJust $ initPlain ey3 6) mfloor
-  , Primitive (fromJust $ initPlain (neg ey3) 8) mfloor
-  , Primitive (fromJust $ initPlain (neg ez3) 0) mfloor
+  , Primitive (fromJust $ initPlain (negate ey3) 8) mfloor
+  , Primitive (fromJust $ initPlain (negate ez3) 0) mfloor
   , Primitive (fromJust $ initPlain ex3 8) mrwall
-  , Primitive (fromJust $ initPlain (neg ex3) 8) mbwall
+  , Primitive (fromJust $ initPlain (negate ex3) 8) mbwall
   , Primitive (fromJust $ initSphere (Vector3 (-3.5) (-3.5) (-6)) 2.5) mmirr
   , Primitive (fromJust $ initSphere (Vector3 (4.0) (-3.5) (-10)) 2.5) mtrans
   ]

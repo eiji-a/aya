@@ -14,6 +14,7 @@ module Aya.Object
   , Distance
   , dtdist
   , dtshape
+  , targetMaterial
   , Intersection
   , initIntersection
   , ispt
@@ -98,6 +99,13 @@ instance Ord Distance where
     | dtdist dt <= dtdist dt' = LT
     | otherwise               = GT
 
+targetMaterial :: Distance -> Ray -> Material -> (Point3, Material, Material)
+targetMaterial dt ray mate0 = (pt, mateT, mate2)
+  where
+    pt = target ray (dtdist dt)
+    mateT = (dtmap dt) pt
+    mate2 = if (inout dt) == Inside then mateT else mate0
+
 -- primitive
 ------------
 
@@ -127,15 +135,13 @@ data Intersection = Intersection
 initIntersection :: Maybe Distance -> Ray -> Material -> Material
                  -> Intersection
 initIntersection dt ray mate0 mate1 =
-    Intersection mate1 mate2 mateT pt n edir rray tray kr kt
+  Intersection mate1 mate2 mateT pt n edir rray tray kr kt
   where
     dt' = fromJust dt
-    pt = target ray (dtdist dt')
+    (pt, mateT, mate2) = targetMaterial dt' ray mate0
     n  = getNormal (dtshape dt') pt (inout dt')
     cos1  = -(n <.> edir)
     edir = rdir ray
     rray = initRay pt ((n <*> (2 * cos1)) + edir)
-    mateT = (dtmap dt') pt
-    mate2 = if (inout dt') == Inside then mateT else mate0
     (tray, kr, kt) = fresnel pt edir n cos1 (avgeta mate1) (avgeta mate2)
 

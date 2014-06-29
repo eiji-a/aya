@@ -61,10 +61,10 @@ iAmb = initIntensity colorWhite 100
 lights :: [Light]
 lights =
   [ 
-    DirectiveLight (Vector3 (-3) 5 (-0.5)) (initIntensity colorWhite 2000)
+    DirectiveLight (Vector3 (-4) 7 (-1)) (initIntensity colorWhite 5000)
                    (negate ey3) lp1
 --, ParallelLight (Vector3 1 1 (-1)) (initIntensity colorWhite 20)
-  , DirectiveLight (Vector3 1 3 5) (initIntensity colorWhite 1500)
+  , DirectiveLight (Vector3 2 6 5) (initIntensity colorWhite 3000)
                    (negate ey3) lp2
   ]
 
